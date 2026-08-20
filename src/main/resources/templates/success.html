@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán thành công</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 480px; margin: 80px auto; padding: 0 16px; text-align: center; }
+        .badge { font-size: 3rem; }
+        a { display: inline-block; margin-top: 24px; color: #635bff; }
+        .note { color: #666; font-size: .85rem; margin-top: 24px; }
+    </style>
+</head>
+<body>
+<div class="badge">✅</div>
+<h1>Thanh toán thành công!</h1>
+<p>Cảm ơn bạn đã mua hàng.</p>
+<a href="/">← Quay lại trang chủ</a>
+<p class="note">Lưu ý: trang này chỉ để hiển thị. Việc xác nhận đơn hàng thật
+    do webhook <code>checkout.session.completed</code> xử lý ở phía server.</p>
+</body>
+</html>

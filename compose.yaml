@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: stripe-payment-postgres
+    environment:
+      POSTGRES_DB: stripe_payment
+      POSTGRES_USER: stripe
+      POSTGRES_PASSWORD: stripe
+    ports:
+      - "5437:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stripe -d stripe_payment"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
