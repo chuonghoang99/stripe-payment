@@ -1,6 +1,6 @@
 # Đáp án thực hành 1 — PostgreSQL PROCEDURE cơ bản
 
-Chạy phần tạo bảng và dữ liệu trong [đề bài](./postgresql-procedure-bai-tap.md) trước khi tạo procedure.
+Chạy phần tạo bảng và dữ liệu trong [đề bài](1-postgresql-procedure-bai-tap.md) trước khi tạo procedure.
 
 ---
 
@@ -253,7 +253,7 @@ orders.total_amount = 1500000.00
 orders.status = created
 ```
 
-Tiếp tục chạy toàn bộ test lỗi, caller rollback và hai session đồng thời trong [đề bài](./postgresql-procedure-bai-tap.md).
+Tiếp tục chạy toàn bộ test lỗi, caller rollback và hai session đồng thời trong [đề bài](1-postgresql-procedure-bai-tap.md).
 
 ---
 
@@ -409,7 +409,7 @@ stock = 20
 
 ### 8.2. Hai session cùng hủy
 
-Chạy test hai cửa sổ ở mục 8.7 của [đề bài](./postgresql-procedure-bai-tap.md). Cửa sổ B phải chờ A kết thúc rồi báo lỗi trạng thái. Kết quả cuối cùng là order `cancelled` và Laptop có stock `5`, chứng minh quantity chỉ được hoàn một lần.
+Chạy test hai cửa sổ ở mục 8.7 của [đề bài](1-postgresql-procedure-bai-tap.md). Cửa sổ B phải chờ A kết thúc rồi báo lỗi trạng thái. Kết quả cuối cùng là order `cancelled` và Laptop có stock `5`, chứng minh quantity chỉ được hoàn một lần.
 
 ---
 

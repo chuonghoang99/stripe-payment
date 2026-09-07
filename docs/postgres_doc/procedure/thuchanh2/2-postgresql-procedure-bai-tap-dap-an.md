@@ -1,6 +1,6 @@
 # Đáp án thực hành 2 — Chuyển tồn kho an toàn
 
-Chạy phần setup trong [đề bài](./postgresql-procedure-bai-tap.md) trước khi tạo procedure.
+Chạy phần setup trong [đề bài](2-postgresql-procedure-bai-tap.md) trước khi tạo procedure.
 
 ---
 
@@ -373,7 +373,7 @@ warehouse 2 stock = 5
 count = 0
 ```
 
-Tiếp tục chạy test hai session ở mục 8 và 9 của [đề bài](./postgresql-procedure-bai-tap.md).
+Tiếp tục chạy test hai session ở mục 8 và 9 của [đề bài](2-postgresql-procedure-bai-tap.md).
 
 ---
 

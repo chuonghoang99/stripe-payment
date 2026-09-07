@@ -581,6 +581,6 @@ B có thể phải chờ A nhưng không được tạo deadlock. Sau khi cả h
 - [ ] Test hai session không oversell.
 - [ ] Test ngược chiều không deadlock.
 
-Đối chiếu sau khi tự làm: [Đáp án thực hành 2](./postgresql-procedure-bai-tap-dap-an.md).
+Đối chiếu sau khi tự làm: [Đáp án thực hành 2](2-postgresql-procedure-bai-tap-dap-an.md).
 
 Lý thuyết liên quan: [PROCEDURE trong PostgreSQL — Chi tiết đầy đủ](../postgresql-procedure-chi-tiet.md).

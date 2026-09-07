@@ -635,6 +635,6 @@ Kết quả bắt buộc:
 - [ ] Không có `COMMIT`, `ROLLBACK` hoặc `WHEN OTHERS`.
 - [ ] Tất cả test ở mục 8 cho kết quả đúng.
 
-Đối chiếu sau khi tự làm: [Đáp án thực hành 1](./postgresql-procedure-bai-tap-dap-an.md).
+Đối chiếu sau khi tự làm: [Đáp án thực hành 1](1-postgresql-procedure-bai-tap-dap-an.md).
 
 Lý thuyết liên quan: [PROCEDURE trong PostgreSQL — Chi tiết đầy đủ](../postgresql-procedure-chi-tiet.md).
