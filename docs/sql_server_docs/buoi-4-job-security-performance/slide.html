@@ -1,0 +1,425 @@
+<title>Buổi 4 — Job & Bảo Mật</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F4F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#E7EDF2;
+  --ink:#10161D;
+  --ink-muted:#57697C;
+  --border:#D3DEE6;
+  --accent:#146C8C;
+  --accent-ink:#FFFFFF;
+  --accent-2:#9C7A1E;
+  --shadow:0 1px 2px rgba(16,22,29,.05), 0 8px 24px rgba(16,22,29,.06);
+  --code-bg:#0F1720;
+  --code-ink:#DCE6EE;
+  --code-bar:#182430;
+  --code-keyword:#6FD1FF;
+  --code-string:#F3C969;
+  --code-comment:#7C8A99;
+  --code-number:#9ECBA9;
+  --code-title:#C9A6F2;
+  --font-display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A0E13;
+    --surface:#121820;
+    --surface-2:#1A222B;
+    --ink:#E7EDF3;
+    --ink-muted:#8FA0B0;
+    --border:#26313F;
+    --accent:#5FC1E6;
+    --accent-ink:#06141B;
+    --accent-2:#E7BE63;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A0E13;
+  --surface:#121820;
+  --surface-2:#1A222B;
+  --ink:#E7EDF3;
+  --ink-muted:#8FA0B0;
+  --border:#26313F;
+  --accent:#5FC1E6;
+  --accent-ink:#06141B;
+  --accent-2:#E7BE63;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-body);
+  overflow:hidden;
+}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);}
+.progress{height:3px;background:var(--surface-2);flex:none;}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .25s ease;}
+.viewport{position:relative;flex:1 1 auto;min-height:0;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(1.75rem,5vw,4.5rem) clamp(1.75rem,8vw,7rem);
+  overflow-y:auto;
+}
+.slide[hidden]{display:none;}
+.slide__inner{max-width:920px;width:100%;margin:0 auto;}
+.eyebrow{
+  font-family:var(--font-body);font-weight:600;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 .9rem;
+}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.9rem,4.2vw,3rem);
+  line-height:1.08;margin:0 0 .6rem;text-wrap:balance;letter-spacing:-.01em;}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,3.1vw,2.15rem);
+  line-height:1.15;margin:0 0 1.1rem;text-wrap:balance;color:var(--ink);}
+h3{font-family:var(--font-body);font-weight:600;font-size:clamp(1.05rem,1.8vw,1.3rem);
+  margin:1.4rem 0 .6rem;color:var(--ink-muted);}
+p{font-size:clamp(1rem,1.35vw,1.15rem);line-height:1.6;margin:0 0 .85rem;color:var(--ink);max-width:62ch;}
+ul,ol{margin:0 0 1rem;padding-left:1.3rem;}
+li{font-size:clamp(1rem,1.3vw,1.12rem);line-height:1.55;margin-bottom:.55rem;max-width:62ch;color:var(--ink);}
+li::marker{color:var(--accent);}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink-muted);}
+a{color:var(--accent);}
+hr{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+blockquote{
+  margin:1rem 0;padding:.8rem 1.1rem;border-left:3px solid var(--accent-2);
+  background:var(--surface-2);border-radius:0 8px 8px 0;color:var(--ink-muted);
+  font-size:.98rem;
+}
+blockquote p{margin:0;max-width:none;color:var(--ink-muted);}
+blockquote::before{content:"Demo";display:block;font-family:var(--font-body);font-weight:700;
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.3rem;}
+
+.table-wrap{overflow-x:auto;margin:0 0 1.1rem;border:1px solid var(--border);border-radius:10px;}
+table{border-collapse:collapse;width:100%;font-size:clamp(.85rem,1.2vw,.98rem);}
+th,td{padding:.55rem .85rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+th{background:var(--surface-2);font-family:var(--font-body);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums;}
+td{color:var(--ink-muted);font-variant-numeric:tabular-nums;}
+tr:last-child td{border-bottom:none;}
+td:first-child,th:first-child{color:var(--ink);font-weight:600;}
+
+.code-panel{
+  margin:0 0 1.1rem;border-radius:12px;overflow:hidden;background:var(--code-bg);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.code-panel__bar{
+  display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;background:var(--code-bar);
+}
+.code-panel__dot{width:9px;height:9px;border-radius:50%;background:var(--ink-muted);opacity:.5;}
+.code-panel__tab{
+  margin-left:.3rem;font-family:var(--font-mono);font-size:.72rem;color:var(--code-ink);opacity:.75;
+  letter-spacing:.02em;
+}
+.code-panel pre{margin:0;padding:1rem 1.2rem;overflow-x:auto;}
+.code-panel code{
+  font-family:var(--font-mono);font-size:clamp(.82rem,1.2vw,.98rem);line-height:1.65;
+  color:var(--code-ink);white-space:pre;
+}
+:not(pre)>code{
+  font-family:var(--font-mono);background:var(--surface-2);color:var(--ink);
+  padding:.1rem .4rem;border-radius:5px;font-size:.9em;
+}
+.hljs-keyword,.hljs-built_in{color:var(--code-keyword);font-weight:600;}
+.hljs-string,.hljs-symbol{color:var(--code-string);}
+.hljs-comment{color:var(--code-comment);font-style:italic;}
+.hljs-number,.hljs-literal{color:var(--code-number);}
+.hljs-title,.hljs-title.function_,.hljs-section{color:var(--code-title);}
+.hljs-attr,.hljs-variable{color:var(--code-ink);}
+
+/* Hero (deck title) + section divider slides */
+.slide--hero .slide__inner,.slide--section .slide__inner{position:relative;}
+.slide--section h1,.slide--hero h1{font-size:clamp(2.1rem,5vw,3.6rem);}
+.slide--section .marker,.slide--hero .marker{
+  position:absolute;top:-2.4rem;right:-.5rem;font-family:var(--font-display);font-weight:700;
+  font-size:clamp(5rem,16vw,11rem);color:var(--surface-2);z-index:-1;line-height:1;
+  user-select:none;
+}
+.slide--section .accent-bar,.slide--hero .accent-bar{width:52px;height:5px;background:var(--accent);
+  border-radius:3px;margin-bottom:1.1rem;}
+.pill{
+  display:inline-block;font-family:var(--font-body);font-weight:600;font-size:.82rem;
+  color:var(--accent);background:var(--surface-2);border:1px solid var(--border);
+  padding:.28rem .8rem;border-radius:99px;margin:0 0 1rem;
+}
+
+/* HUD */
+.hud{
+  flex:none;display:flex;align-items:center;gap:.9rem;padding:.7rem 1.1rem;
+  background:var(--surface);border-top:1px solid var(--border);
+}
+.hud-btn{
+  font-family:var(--font-body);font-size:1.2rem;line-height:1;width:2.3rem;height:2.3rem;
+  border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;
+  transition:background .15s ease,border-color .15s ease;
+}
+.hud-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hud-btn:disabled{opacity:.35;cursor:default;}
+.hud-btn:focus-visible,.hud-fab:focus-visible,.ov-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.hud-info{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:.7rem;}
+.hud-badge{
+  font-family:var(--font-body);font-weight:700;font-size:.72rem;letter-spacing:.06em;
+  color:var(--accent-ink);background:var(--accent);padding:.22rem .55rem;border-radius:6px;flex:none;
+}
+.hud-section{
+  font-family:var(--font-body);font-weight:500;font-size:.85rem;color:var(--ink-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;min-width:0;
+}
+.hud-count{
+  font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);flex:none;
+  font-variant-numeric:tabular-nums;
+}
+.hud-fab{
+  position:fixed;bottom:4.6rem;right:1.1rem;width:2.5rem;height:2.5rem;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-muted);cursor:pointer;
+  font-size:1.15rem;box-shadow:var(--shadow);
+}
+.hud-fab:hover{color:var(--accent);border-color:var(--accent);}
+.zone{position:absolute;top:0;bottom:0;width:14%;cursor:pointer;z-index:2;background:transparent;border:none;}
+.zone--prev{left:0;}
+.zone--next{right:0;}
+
+/* Overview */
+.overview{
+  position:fixed;inset:0;background:color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter:blur(6px);z-index:20;overflow-y:auto;padding:clamp(1.5rem,4vw,3rem);
+}
+.overview[hidden]{display:none;}
+.overview__head{display:flex;align-items:center;justify-content:space-between;max-width:1100px;
+  margin:0 auto 1.2rem;}
+.overview__head h2{margin:0;font-size:1.3rem;}
+.overview__close{
+  width:2.3rem;height:2.3rem;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+  color:var(--ink);cursor:pointer;font-size:1.1rem;
+}
+.ov-grid{
+  max-width:1100px;margin:0 auto;display:grid;gap:.7rem;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+}
+.ov-item{
+  text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:10px;
+  padding:.8rem .9rem;cursor:pointer;color:var(--ink);font-family:var(--font-body);
+}
+.ov-item:hover{border-color:var(--accent);}
+.ov-item small{display:block;color:var(--accent);font-weight:700;font-size:.72rem;
+  letter-spacing:.06em;margin-bottom:.3rem;font-variant-numeric:tabular-nums;}
+.ov-item span{display:block;font-size:.88rem;color:var(--ink-muted);line-height:1.35;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.ov-item.is-current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+
+@media (prefers-reduced-motion: reduce){
+  .progress-fill{transition:none;}
+}
+@media (max-width:640px){
+  .hud-section{display:none;}
+  .zone{width:20%;}
+}
+</style>
+
+<div class="stage" id="stage">
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="viewport" id="viewport">
+    <button class="zone zone--prev" id="zonePrev" aria-label="Slide trước"></button>
+    <button class="zone zone--next" id="zoneNext" aria-label="Slide tiếp theo"></button>
+  </div>
+  <div class="hud">
+    <button class="hud-btn" id="prevBtn" aria-label="Slide trước">‹</button>
+    <div class="hud-info">
+      <span class="hud-badge">Buổi 04/04</span>
+      <span class="hud-section" id="sectionLabel">SQL Server Agent Job, Security & Performance Tuning</span>
+      <span class="hud-count" id="slideCount">1 / 1</span>
+    </div>
+    <button class="hud-btn" id="nextBtn" aria-label="Slide tiếp theo">›</button>
+  </div>
+  <button class="hud-fab" id="overviewBtn" title="Xem tất cả slide" aria-label="Xem tất cả slide">⊞</button>
+</div>
+<div class="overview" id="overviewPanel" hidden>
+  <div class="overview__head">
+    <h2>Toàn bộ slide</h2>
+    <button class="overview__close" id="overviewClose" aria-label="Đóng">✕</button>
+  </div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script id="deck-source" type="application/json">"---\nmarp: true\ntheme: default\npaginate: true\nsize: 16:9\n---\n\n# Buổi 4/4: SQL Server Agent Job, Security & Performance Tuning\n\n### Buổi cuối khóa đào tạo SQL Server (180 phút)\n\n**Mục tiêu buổi học:**\n\n- Hiểu kiến trúc SQL Server Agent và tự tạo được Job tự động hóa (qua SSMS UI và qua T-SQL)\n- Biết cách xem Job History để debug khi job chạy lỗi\n- Nắm khái niệm cơ bản về Security: Login/User, Role, GRANT/DENY/REVOKE\n- Nắm khái niệm cơ bản về Performance Tuning: đọc Execution Plan, tránh lỗi viết query phổ biến\n- Hoàn thành bài Capstone tổng hợp toàn bộ kiến thức 4 buổi (View + Procedure + Job)\n\n---\n\n## Agenda buổi học (180 phút)\n\n| # | Nội dung | Thời lượng |\n|---|----------|-----------|\n| 1 | SQL Server Agent & Job **(trọng tâm)** | 70 phút |\n| 2 | Security *(giới thiệu sơ lược)* | 25 phút |\n| 3 | Performance Tuning *(giới thiệu sơ lược)* | 25 phút |\n| 4 | Tổng kết khóa học + Bài tập Capstone | 60 phút |\n\nToàn bộ ví dụ dùng chung CSDL **CompanyDB** đã dùng xuyên suốt Buổi 1-3.\n\n---\n\n# Phần 1: SQL Server Agent & Job\n\n## (70 phút — phần trọng tâm của buổi)\n\nTự động hóa các tác vụ định kỳ trong SQL Server: backup, dọn dẹp dữ liệu, chạy report, ETL đơn giản...\n\n---\n\n## SQL Server Agent là gì?\n\n- Là một **Windows Service** chạy nền, cài kèm SQL Server (`SQL Server Agent`)\n- Chức năng: lên lịch và thực thi tự động các tác vụ (Job) mà không cần con người can thiệp\n- Lưu toàn bộ cấu hình Job/Schedule/Log trong CSDL hệ thống **msdb**\n- Cần được **Start** (running) thì Job mới chạy được — kiểm tra trong SSMS: SQL Server Agent phải có biểu tượng \"mũi tên xanh\"\n- Nếu Agent service dừng → toàn bộ Job đã lên lịch sẽ **không** chạy\n\n---\n\n## Các khái niệm cốt lõi\n\n- **Job**: một tác vụ tự động, gồm 1 hoặc nhiều bước (Step)\n- **Job Step**: một bước thực thi cụ thể (chạy script, chạy lệnh OS...); các step chạy tuần tự, có thể định nghĩa \"nếu step lỗi thì làm gì\" (quit job, chuyển step khác...)\n- **Schedule**: lịch chạy (một lần, lặp lại theo ngày/tuần/tháng, hoặc khi SQL Server Agent start)\n- **Operator**: đối tượng (thường là email) nhận thông báo khi Job thành công/thất bại\n- **Alert**: cảnh báo được kích hoạt bởi 1 sự kiện (lỗi SQL Server, hoặc job fail) → gửi tới Operator\n\n---\n\n## Các loại Job Step (Subsystem)\n\nMỗi Step chọn 1 \"loại\" (subsystem) thực thi:\n\n- **Transact-SQL script (TSQL)** — phổ biến nhất, chạy T-SQL trực tiếp\n- **Operating system (CmdExec)** — chạy lệnh command line / batch file\n- **PowerShell** — chạy script PowerShell\n- **SQL Server Integration Services (SSIS)** — chạy gói SSIS\n- **Replication**, **Analysis Services** — dùng cho các tác vụ chuyên biệt\n\n→ Buổi này tập trung vào loại **T-SQL Script**, phổ biến nhất với dev.\n\n---\n\n## Tạo Job qua SSMS UI (các bước)\n\n1. Object Explorer → **SQL Server Agent** → chuột phải **Jobs** → **New Job...**\n2. Tab **General**: đặt tên Job, mô tả, Owner\n3. Tab **Steps** → **New...**: đặt tên step, chọn **Type = Transact-SQL script (T-SQL)**, chọn Database, gõ câu lệnh (thường là `EXEC` 1 stored procedure)\n4. Tab **Schedules** → **New...**: chọn tần suất (Daily/Weekly/...), giờ chạy\n5. Tab **Notifications**: chọn Operator nhận email khi Job Complete/Fail (tùy chọn)\n6. **OK** để lưu → Job xuất hiện dưới **Jobs**, chuột phải → **Start Job at Step...** để chạy thử ngay\n\n---\n\n## Tạo Job qua T-SQL — Ví dụ thực tế\n\n**Bài toán**: mỗi ngày dọn dẹp các đơn hàng `Status = 'Cancelled'` cũ hơn 90 ngày trong CompanyDB.\n\nBước 1 — tạo stored procedure dọn dẹp (đã học cách viết Procedure ở Buổi 3):\n\n```sql\nUSE CompanyDB;\nGO\nCREATE OR ALTER PROCEDURE dbo.sp_CleanupCancelledOrders\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    DELETE od\n    FROM OrderDetails od\n    INNER JOIN Orders o ON o.OrderID = od.OrderID\n    WHERE o.Status = N'Cancelled'\n      AND o.OrderDate < DATEADD(DAY, -90, CAST(GETDATE() AS DATE));\n\n    DELETE FROM Orders\n    WHERE Status = N'Cancelled'\n      AND OrderDate < DATEADD(DAY, -90, CAST(GETDATE() AS DATE));\nEND\nGO\n```\n\n---\n\n## Tạo Job qua T-SQL — `sp_add_job`\n\nBước 2 — tạo Job trong `msdb`:\n\n```sql\nUSE msdb;\nGO\n\nEXEC dbo.sp_add_job\n    @job_name = N'Job_Cleanup_CancelledOrders',\n    @enabled = 1,\n    @description = N'Xoa don hang Cancelled qua 90 ngay trong CompanyDB',\n    @category_name = N'[Uncategorized (Local)]';\n```\n\n- `sp_add_job` chỉ tạo \"vỏ\" Job — chưa có Step, chưa có Schedule, chưa gán server\n- Job vừa tạo chưa chạy được, cần thêm Step + Schedule + gán vào job server (bước tiếp theo)\n\n---\n\n## Tạo Job qua T-SQL — `sp_add_jobstep`\n\n```sql\nEXEC dbo.sp_add_jobstep\n    @job_name = N'Job_Cleanup_CancelledOrders',\n    @step_name = N'Step_ExecCleanupProc',\n    @step_id = 1,\n    @subsystem = N'TSQL',\n    @database_name = N'CompanyDB',\n    @command = N'EXEC dbo.sp_CleanupCancelledOrders;',\n    @on_success_action = 1,   -- 1 = Quit the job reporting success\n    @on_fail_action = 2;      -- 2 = Quit the job reporting failure\n```\n\n- `@subsystem = 'TSQL'` → step chạy T-SQL script\n- `@command` chính là câu lệnh sẽ được thực thi (ở đây gọi thẳng stored procedure)\n- Một Job có thể có nhiều Step (`@step_id` tăng dần), chạy tuần tự\n\n---\n\n## Tạo Job qua T-SQL — `sp_add_schedule` & gán lịch\n\n```sql\nEXEC dbo.sp_add_schedule\n    @schedule_name = N'Schedule_Daily_02AM',\n    @freq_type = 4,          -- 4 = Daily\n    @freq_interval = 1,      -- mỗi 1 ngày\n    @active_start_time = 020000; -- 02:00:00 sang\n\nEXEC dbo.sp_attach_schedule\n    @job_name = N'Job_Cleanup_CancelledOrders',\n    @schedule_name = N'Schedule_Daily_02AM';\n```\n\n- `sp_add_schedule` tạo lịch (độc lập, có thể tái sử dụng cho nhiều Job)\n- `sp_attach_schedule` gắn lịch đó vào 1 Job cụ thể\n- `@freq_type = 4` (Daily) là giá trị hay dùng nhất; còn có Weekly (8), Monthly (16)...\n\n---\n\n## Tạo Job qua T-SQL — `sp_add_jobserver`\n\n```sql\nEXEC dbo.sp_add_jobserver\n    @job_name = N'Job_Cleanup_CancelledOrders',\n    @server_name = N'(local)';\n```\n\n- Bước **bắt buộc cuối cùng**: gán Job vào 1 SQL Server instance (job server) thì Job mới thật sự được Agent thực thi\n- Với instance đơn (không cluster), dùng `@server_name = '(local)'`\n- Sau bước này, Job đã sẵn sàng chạy đúng lịch — có thể kiểm tra lại trong SSMS: **SQL Server Agent > Jobs**\n\n---\n\n## Chạy thử & theo dõi Job\n\n```sql\n-- Chay thu Job ngay lap tuc (khong doi den lich)\nEXEC msdb.dbo.sp_start_job @job_name = N'Job_Cleanup_CancelledOrders';\n\n-- Xem trang thai lan chay gan nhat\nSELECT job.name, activity.run_requested_date, activity.stop_execution_date\nFROM msdb.dbo.sysjobactivity activity\nJOIN msdb.dbo.sysjobs job ON job.job_id = activity.job_id\nWHERE job.name = N'Job_Cleanup_CancelledOrders';\n```\n\n- `sp_start_job` dùng để test job ngay, không cần chờ schedule\n- Có thể theo dõi tiến trình qua SSMS: chuột phải Job → **View History**\n\n---\n\n## Xem Job History để debug khi Job lỗi\n\nQua SSMS UI:\n- Chuột phải Job → **View History** → xem từng lần chạy (Run Date, Duration, Status, Message lỗi chi tiết)\n\nQua T-SQL:\n\n```sql\nEXEC msdb.dbo.sp_help_jobhistory\n    @job_name = N'Job_Cleanup_CancelledOrders';\n```\n\n- Cột `run_status`: 0 = Failed, 1 = Succeeded, 2 = Retry, 3 = Canceled\n- `message` chứa nội dung lỗi T-SQL gốc (số lỗi, dòng lỗi...) — rất hữu ích khi debug\n- Nguyên nhân lỗi thường gặp: sai tên database/procedure, thiếu quyền của **SQL Server Agent Service Account**, lock/deadlock khi chạy trùng giờ cao điểm\n\n---\n\n## Alert & Notification cơ bản (khái niệm)\n\n- **Database Mail**: cơ chế gửi email từ trong SQL Server (dùng SMTP), phải được cấu hình/enable trước (`sp_configure 'Database Mail XPs'`) — buổi này chỉ giới thiệu khái niệm, không cấu hình chi tiết\n- **Operator**: đại diện người/nhóm nhận thông báo (gắn với 1 địa chỉ email)\n- **Notification**: cấu hình trong tab *Notifications* của Job — chọn gửi email khi job **Succeeds / Fails / Completes**\n- **Alert**: có thể tạo alert riêng theo mã lỗi SQL Server (severity, error number) độc lập với Job, ví dụ báo khi có lỗi severity ≥ 16\n- Thực tế vận hành: luôn bật notification \"on failure\" cho các Job quan trọng để phát hiện sự cố sớm\n\n---\n\n# Phần 2: Security\n\n## ⚠️ Phần giới thiệu — không đi sâu (25 phút)\n\nMục tiêu: nắm khái niệm nền tảng để hiểu cách SQL Server kiểm soát quyền truy cập, chưa đi vào cấu hình bảo mật nâng cao (encryption, row-level security, auditing...).\n\n---\n\n## Authentication: Windows vs SQL Server\n\n- **Windows Authentication**: dùng tài khoản Windows/Active Directory đang đăng nhập để kết nối SQL Server — không cần nhập thêm mật khẩu, được khuyến nghị vì bảo mật cao hơn (quản lý tập trung qua AD)\n- **SQL Server Authentication**: tạo tài khoản riêng (username/password) lưu trong SQL Server, độc lập với hệ điều hành — cần thiết khi ứng dụng không nằm trong domain, hoặc kết nối từ ngoài mạng nội bộ\n- Server có thể cấu hình **Mixed Mode** (cho phép cả 2 kiểu) hoặc chỉ **Windows Authentication Mode**\n\n---\n\n## Login vs User — 2 cấp độ quyền\n\n| | **Login** | **User** |\n|---|---|---|\n| Phạm vi | Cấp **Server** (toàn instance) | Cấp **Database** (từng CSDL) |\n| Vai trò | Định danh để \"đăng nhập\" vào SQL Server | Định danh để truy cập tài nguyên trong 1 database cụ thể |\n| Quan hệ | 1 Login có thể map tới User ở nhiều database khác nhau | 1 User luôn thuộc về đúng 1 database |\n\n```sql\n-- Tao Login o cap Server\nCREATE LOGIN sales_readonly WITH PASSWORD = 'Str0ngP@ss!2026';\n\n-- Tao User trong CompanyDB, map voi Login vua tao\nUSE CompanyDB;\nCREATE USER sales_readonly FOR LOGIN sales_readonly;\n```\n\n---\n\n## Server Role vs Database Role\n\n- **Server Role**: nhóm quyền cấp server, vd `sysadmin` (toàn quyền), `serveradmin`, `securityadmin`... → hiếm khi gán cho user ứng dụng thông thường\n- **Database Role**: nhóm quyền cấp database, các role dựng sẵn hay dùng:\n  - `db_datareader` — chỉ được **SELECT** mọi bảng trong database\n  - `db_datawriter` — được **INSERT/UPDATE/DELETE** mọi bảng\n  - `db_owner` — toàn quyền trên database (tương đương chủ sở hữu)\n\n```sql\nALTER ROLE db_datareader ADD MEMBER sales_readonly;\n```\n\n- Có thể tạo **Custom Role** riêng nếu quyền dựng sẵn quá rộng/hẹp so với nhu cầu\n\n---\n\n## GRANT / DENY / REVOKE trên object cụ thể\n\n```sql\n-- Cap quyen SELECT tren 1 bang cu the\nGRANT SELECT ON dbo.Orders TO sales_readonly;\n\n-- Cap quyen thuc thi 1 stored procedure cu the\nGRANT EXECUTE ON dbo.sp_CleanupCancelledOrders TO sales_readonly;\n\n-- Tu choi tuyet doi quyen DELETE (DENY luon thang GRANT, ke ca gan qua Role)\nDENY DELETE ON dbo.Orders TO sales_readonly;\n\n-- Thu hoi quyen da cap truoc do (khong con GRANT, cung khong con DENY)\nREVOKE SELECT ON dbo.Orders FROM sales_readonly;\n```\n\n- `GRANT` = cấp quyền, `DENY` = cấm tuyệt đối (ưu tiên cao nhất, ghi đè mọi GRANT), `REVOKE` = xóa bỏ 1 quyền đã cấp/cấm trước đó\n- Có thể GRANT/DENY trên: bảng, view, cột cụ thể, stored procedure, function...\n\n---\n\n## Nguyên tắc Least Privilege\n\n- Chỉ cấp **đúng và đủ** quyền cần thiết cho từng tài khoản/ứng dụng — không cấp `db_owner` hay `sysadmin` \"cho tiện\"\n- Ưu tiên gán quyền qua **Role** (dễ quản lý, dễ audit) hơn là gán lẻ tẻ cho từng User\n- Tài khoản ứng dụng (connection string) nên tách riêng theo tác vụ: tài khoản chỉ đọc report, tài khoản ghi dữ liệu nghiệp vụ, tài khoản chạy Job...\n- Định kỳ rà soát lại quyền đã cấp — gỡ bỏ quyền của tài khoản không còn dùng\n- Đây là nền tảng để tránh rủi ro bảo mật/thao tác nhầm trên production\n\n---\n\n# Phần 3: Performance Tuning\n\n## ⚠️ Phần giới thiệu — không đi sâu (25 phút)\n\nMục tiêu: biết cách quan sát 1 query đang chạy như thế nào và nhận diện vài lỗi viết query phổ biến, chưa đi vào tuning index/query chuyên sâu.\n\n---\n\n## Execution Plan là gì?\n\n- Là \"kế hoạch thực thi\" mà SQL Server Optimizer chọn để chạy 1 câu query (bảng nào đọc trước, dùng index nào, join theo thuật toán nào...)\n- **Estimated Execution Plan**: kế hoạch dự đoán, dựa trên Statistics — SQL Server **không cần chạy thật** câu query để lấy được\n- **Actual Execution Plan**: kế hoạch thật cộng thêm số liệu thực tế sau khi query **đã chạy xong** (số dòng thực tế, số lần thực thi...)\n- Actual Plan đáng tin hơn Estimated Plan khi Statistics bị lỗi thời hoặc số liệu ước tính sai lệch nhiều\n\n---\n\n## Cách xem Execution Plan trong SSMS\n\n- **Estimated Plan**: `Ctrl + L` (hoặc menu Query → Display Estimated Execution Plan) — không cần chạy query\n- **Actual Plan**: `Ctrl + M` (hoặc menu Query → Include Actual Execution Plan) **trước khi** bấm Execute — plan hiện ra ở tab riêng sau khi query chạy xong\n- Rê chuột vào từng node trong plan để xem chi tiết: số dòng ước tính/thực tế, chi phí (Cost), số lần thực thi...\n\n```sql\n-- Vi du: bat Ctrl+M roi chay query nay de xem Actual Plan\nSELECT o.OrderID, c.CustomerName, o.OrderDate, o.Status\nFROM Orders o\nJOIN Customers c ON c.CustomerID = o.CustomerID\nWHERE o.Status = N'Completed';\n```\n\n---\n\n## Đọc hiểu vài ký hiệu cơ bản\n\n- **Table Scan**: đọc toàn bộ bảng (không dùng index) → thường là dấu hiệu cần thêm index nếu bảng lớn\n- **Index Scan**: đọc toàn bộ 1 index (đỡ hơn Table Scan nhưng vẫn đọc hết)\n- **Index Seek**: dùng index để nhảy thẳng đến đúng dòng cần — hiệu quả nhất, mục tiêu cần hướng tới\n- Mỗi node trong plan hiển thị **% cost** so với tổng chi phí toàn plan → nên tập trung tối ưu node có % cost cao nhất trước\n- Mũi tên (arrow) nối giữa các node càng **dày** → càng nhiều dòng dữ liệu được truyền qua bước đó\n\n---\n\n## Missing Index & Statistics\n\n- Khi 1 query có thể chạy nhanh hơn nếu có thêm index, SSMS hiển thị gợi ý màu xanh lá **\"Missing Index\"** ngay phía trên execution plan, kèm sẵn câu lệnh `CREATE INDEX` đề xuất\n- Gợi ý này chỉ mang tính tham khảo — cần cân nhắc thêm (index tốn chi phí ghi, dung lượng) trước khi áp dụng, không nên tạo index theo mọi gợi ý\n\n```sql\n-- Vi du cau lenh SSMS co the goi y (minh hoa)\nCREATE INDEX IX_Orders_Status_OrderDate\n    ON dbo.Orders (Status, OrderDate);\n```\n\n- **Statistics**: là thông tin thống kê phân bố dữ liệu trên cột/index, giúp Optimizer ước lượng số dòng → chọn plan phù hợp\n- Statistics lỗi thời (dữ liệu thay đổi nhiều nhưng chưa cập nhật) là nguyên nhân phổ biến khiến Optimizer chọn sai plan; SQL Server tự động cập nhật, hoặc chạy thủ công `UPDATE STATISTICS dbo.Orders;`\n\n---\n\n## Best Practice viết query hiệu quả\n\n**1. Tránh `SELECT *`** — chỉ lấy đúng cột cần dùng (giảm I/O, tận dụng covering index)\n\n```sql\n-- Nen tranh\nSELECT * FROM Orders WHERE Status = N'Completed';\n-- Nen dung\nSELECT OrderID, CustomerID, OrderDate FROM Orders WHERE Status = N'Completed';\n```\n\n**2. Tránh bọc hàm lên cột trong `WHERE`** — làm mất khả năng dùng Index Seek (SARGable)\n\n```sql\n-- Xau: ham YEAR() boc cot -> Table/Index Scan\nSELECT * FROM Orders WHERE YEAR(OrderDate) = 2025;\n-- Tot: so sanh truc tiep cot -> co the Index Seek\nSELECT * FROM Orders WHERE OrderDate >= '2025-01-01' AND OrderDate < '2026-01-01';\n```\n\n**3. Tránh N+1 query** — thay vì query lặp trong vòng lặp ứng dụng cho từng đơn hàng, gộp lại thành 1 câu JOIN duy nhất lấy hết dữ liệu cần\n\n---\n\n# Phần 4: Tổng kết khóa học & Bài tập Capstone\n\n## (60 phút)\n\nVận dụng toàn bộ kiến thức 4 buổi vào 1 bài toán thực tế hoàn chỉnh.\n\n---\n\n## Đề bài Capstone: Module Báo cáo doanh thu tự động\n\nXây dựng module tự động tính và lưu báo cáo doanh thu theo tháng/nhân viên:\n\n- **(a) View** `vw_MonthlyRevenueByEmployee`: tổng hợp doanh thu (từ `Orders` + `OrderDetails`, chỉ tính đơn `Status = 'Completed'`) theo từng tháng và từng nhân viên\n- **(b) Stored Procedure** `sp_GenerateMonthlyRevenueReport`: tính doanh thu tháng (mặc định tháng hiện tại) từ View trên, rồi lưu (log) kết quả vào bảng `RevenueReportLog`\n- **(c) SQL Server Agent Job**: gọi Procedure trên **tự động mỗi ngày lúc 00:00** (nửa đêm), dùng đầy đủ `sp_add_job` / `sp_add_jobstep` / `sp_add_schedule` / `sp_attach_schedule` / `sp_add_jobserver`\n\n→ Chi tiết đề bài đầy đủ + đáp án nằm trong file **lab.md**.\n\n---\n\n## Recap Buổi 1 — Nền tảng Table & Index\n\n- Kiểu dữ liệu SQL Server, thiết kế bảng, Primary/Foreign Key, Constraint\n- Khái niệm Index cơ bản (Clustered/Non-Clustered) và vì sao index giúp truy vấn nhanh hơn\n\n## Recap Buổi 2 — Query nâng cao & View\n\n- JOIN nhiều bảng, Subquery, CTE, Window Function (`ROW_NUMBER`, `RANK`...)\n- Tạo và sử dụng View để đóng gói logic truy vấn phức tạp, tái sử dụng nhiều nơi\n\n---\n\n## Recap Buổi 3 — Procedure, Function & Trigger\n\n- Viết Stored Procedure có tham số đầu vào/đầu ra, xử lý logic nghiệp vụ trong CSDL\n- Viết Function (Scalar/Table-Valued) để tái sử dụng logic tính toán trong query\n- Giới thiệu sơ lược Trigger — tự động phản ứng khi dữ liệu thay đổi\n\n## Recap Buổi 4 — Job, Security & Performance (hôm nay)\n\n- Tự động hóa tác vụ định kỳ bằng SQL Server Agent Job\n- Khái niệm nền tảng về phân quyền và cách quan sát hiệu năng query\n\n---\n\n## Lời cảm ơn & Hướng học tiếp theo\n\nCảm ơn cả nhóm đã tham gia đầy đủ và tích cực suốt 4 buổi đào tạo! Đây mới là nền tảng — SQL Server còn rất nhiều điều để khám phá sâu hơn:\n\n- **Performance Tuning chuyên sâu**: đọc kỹ Execution Plan, chiến lược Indexing nâng cao, Query Store, xử lý deadlock/blocking\n- **High Availability**: Always On Availability Groups, Failover Clustering\n- **Replication**: đồng bộ dữ liệu giữa nhiều SQL Server instance\n- **SSIS (SQL Server Integration Services)**: xây dựng pipeline ETL phức tạp hơn Agent Job thuần T-SQL\n- **Security nâng cao**: Row-Level Security, Data Encryption, Auditing\n\n**Chúc các bạn áp dụng tốt kiến thức vào công việc thực tế!**\n"</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function(){
+  var raw = JSON.parse(document.getElementById('deck-source').textContent);
+  var DECK_KEY = 'sqltraining-slide-' + 04;
+
+  function stripFrontmatter(lines){
+    if(lines[0] && lines[0].trim()==='---'){
+      for(var i=1;i<lines.length;i++){
+        if(lines[i].trim()==='---') return lines.slice(i+1);
+      }
+    }
+    return lines;
+  }
+  function splitSlides(text){
+    var lines = text.replace(/\r\n/g,'\n').split('\n');
+    lines = stripFrontmatter(lines);
+    var out=[], cur=[];
+    for(var i=0;i<lines.length;i++){
+      if(lines[i].trim()==='---'){ out.push(cur.join('\n').trim()); cur=[]; }
+      else cur.push(lines[i]);
+    }
+    out.push(cur.join('\n').trim());
+    return out.filter(function(s){return s.length>0;});
+  }
+
+  marked.setOptions({breaks:false});
+  var chunks = splitSlides(raw);
+  var currentSection = 'SQL Server Agent Job, Security & Performance Tuning';
+  var slides = chunks.map(function(chunk, idx){
+    var isDivider = /^#\s+[^#]/.test(chunk);
+    var firstLine = (chunk.match(/^#\s+(.+)$/m)||[])[1] || '';
+    var summary = (chunk.match(/^#{1,3}\s+(.+)$/m)||[])[1] || chunk.slice(0,60);
+    if(isDivider && firstLine){
+      currentSection = firstLine.replace(/^Phần\s*\d+\s*:\s*/i,'').trim();
+    }
+    return {
+      md: chunk,
+      isDivider: isDivider && idx>0,
+      isHero: idx===0,
+      section: currentSection,
+      summary: summary,
+      index: idx
+    };
+  });
+
+  var viewport = document.getElementById('viewport');
+  slides.forEach(function(s, idx){
+    var section = document.createElement('section');
+    section.className = 'slide' + (s.isHero?' slide--hero':(s.isDivider?' slide--section':''));
+    section.hidden = idx!==0;
+    section.setAttribute('data-index', idx);
+    var inner = document.createElement('div');
+    inner.className = 'slide__inner';
+    if(s.isHero || s.isDivider){
+      var num = document.createElement('div');
+      num.className='marker';
+      num.textContent = String(idx+1).padStart(2,'0');
+      inner.appendChild(num);
+      var bar = document.createElement('div');
+      bar.className='accent-bar';
+      inner.appendChild(bar);
+    }
+    var content = document.createElement('div');
+    content.innerHTML = marked.parse(s.md);
+    inner.appendChild(content);
+    section.appendChild(inner);
+    viewport.appendChild(section);
+
+    content.querySelectorAll('table').forEach(function(t){
+      var wrap = document.createElement('div');
+      wrap.className='table-wrap';
+      t.parentNode.insertBefore(wrap,t);
+      wrap.appendChild(t);
+    });
+    content.querySelectorAll('pre').forEach(function(pre){
+      var code = pre.querySelector('code');
+      if(!code) return;
+      var lang = (code.className.match(/language-(\w+)/)||[])[1] || 'sql';
+      var panel = document.createElement('div');
+      panel.className='code-panel';
+      var bar = document.createElement('div');
+      bar.className='code-panel__bar';
+      bar.innerHTML = '<span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__tab">Query.'+ (lang==='sql'?'sql':lang) +'</span>';
+      pre.parentNode.insertBefore(panel, pre);
+      panel.appendChild(bar);
+      panel.appendChild(pre);
+      try{
+        if(!code.className.includes('language-')) code.className += ' language-sql';
+        hljs.highlightElement(code);
+      }catch(e){}
+    });
+  });
+
+  var total = slides.length;
+  var current = 0;
+  try{
+    var saved = parseInt(localStorage.getItem(DECK_KEY),10);
+    if(!isNaN(saved) && saved>=0 && saved<total) current = saved;
+  }catch(e){}
+
+  var progressFill = document.getElementById('progressFill');
+  var sectionLabel = document.getElementById('sectionLabel');
+  var slideCount = document.getElementById('slideCount');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var allSlideEls = viewport.querySelectorAll('.slide');
+
+  function render(){
+    allSlideEls.forEach(function(el,idx){ el.hidden = idx!==current; });
+    progressFill.style.width = ((current+1)/total*100)+'%';
+    sectionLabel.textContent = slides[current].section;
+    slideCount.textContent = (current+1)+' / '+total;
+    prevBtn.disabled = current===0;
+    nextBtn.disabled = current===total-1;
+    try{ localStorage.setItem(DECK_KEY,String(current)); }catch(e){}
+  }
+  function go(idx){
+    if(idx<0||idx>=total) return;
+    current = idx;
+    render();
+  }
+  prevBtn.addEventListener('click',function(){go(current-1);});
+  nextBtn.addEventListener('click',function(){go(current+1);});
+  document.getElementById('zonePrev').addEventListener('click',function(){go(current-1);});
+  document.getElementById('zoneNext').addEventListener('click',function(){go(current+1);});
+
+  document.addEventListener('keydown', function(e){
+    if(!overviewPanel.hidden){
+      if(e.key==='Escape') closeOverview();
+      return;
+    }
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ go(current+1); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ go(current-1); e.preventDefault(); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(total-1); }
+    else if(e.key==='o'||e.key==='O'){ openOverview(); }
+  });
+
+  var touchX=null;
+  viewport.addEventListener('touchstart',function(e){touchX=e.touches[0].clientX;},{passive:true});
+  viewport.addEventListener('touchend',function(e){
+    if(touchX===null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx)>50){ dx<0 ? go(current+1) : go(current-1); }
+    touchX=null;
+  },{passive:true});
+
+  var overviewPanel = document.getElementById('overviewPanel');
+  var overviewBtn = document.getElementById('overviewBtn');
+  var overviewClose = document.getElementById('overviewClose');
+  var ovGrid = document.getElementById('ovGrid');
+  slides.forEach(function(s,idx){
+    var btn = document.createElement('button');
+    btn.className='ov-item';
+    btn.innerHTML = '<small>'+String(idx+1).padStart(2,'0')+' · '+s.section+'</small><span>'+s.summary+'</span>';
+    btn.addEventListener('click',function(){ go(idx); closeOverview(); });
+    ovGrid.appendChild(btn);
+  });
+  function openOverview(){
+    overviewPanel.hidden=false;
+    ovGrid.querySelectorAll('.ov-item').forEach(function(el,idx){
+      el.classList.toggle('is-current', idx===current);
+    });
+  }
+  function closeOverview(){ overviewPanel.hidden=true; }
+  overviewBtn.addEventListener('click', openOverview);
+  overviewClose.addEventListener('click', closeOverview);
+  overviewPanel.addEventListener('click', function(e){ if(e.target===overviewPanel) closeOverview(); });
+
+  render();
+})();
+</script>

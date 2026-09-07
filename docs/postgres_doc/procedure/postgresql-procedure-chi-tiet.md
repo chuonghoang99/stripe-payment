@@ -449,6 +449,12 @@ Không cần `ROLLBACK AND CHAIN` trong nhánh lỗi vì inner subtransaction đ
 
 Procedure này phải được gọi bằng top-level `CALL`; không đặt `CALL` trong một transaction block do client hoặc framework mở sẵn.
 
+Vì procedure có `OUT` parameter, khi gọi trực tiếp bằng SQL vẫn truyền đủ vị trí tham số `OUT`, thường dùng `NULL`:
+
+```sql
+CALL process_orders_batch(ARRAY[1, 2, 3, 4, 5]::bigint[], 2, NULL, NULL);
+```
+
 ---
 
 ## 6. Batch job — lý do PROCEDURE tồn tại

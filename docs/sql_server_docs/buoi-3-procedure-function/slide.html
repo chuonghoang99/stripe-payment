@@ -1,0 +1,425 @@
+<title>Buổi 3 — Procedure & Function</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F4F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#E7EDF2;
+  --ink:#10161D;
+  --ink-muted:#57697C;
+  --border:#D3DEE6;
+  --accent:#146C8C;
+  --accent-ink:#FFFFFF;
+  --accent-2:#9C7A1E;
+  --shadow:0 1px 2px rgba(16,22,29,.05), 0 8px 24px rgba(16,22,29,.06);
+  --code-bg:#0F1720;
+  --code-ink:#DCE6EE;
+  --code-bar:#182430;
+  --code-keyword:#6FD1FF;
+  --code-string:#F3C969;
+  --code-comment:#7C8A99;
+  --code-number:#9ECBA9;
+  --code-title:#C9A6F2;
+  --font-display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A0E13;
+    --surface:#121820;
+    --surface-2:#1A222B;
+    --ink:#E7EDF3;
+    --ink-muted:#8FA0B0;
+    --border:#26313F;
+    --accent:#5FC1E6;
+    --accent-ink:#06141B;
+    --accent-2:#E7BE63;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A0E13;
+  --surface:#121820;
+  --surface-2:#1A222B;
+  --ink:#E7EDF3;
+  --ink-muted:#8FA0B0;
+  --border:#26313F;
+  --accent:#5FC1E6;
+  --accent-ink:#06141B;
+  --accent-2:#E7BE63;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-body);
+  overflow:hidden;
+}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);}
+.progress{height:3px;background:var(--surface-2);flex:none;}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .25s ease;}
+.viewport{position:relative;flex:1 1 auto;min-height:0;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(1.75rem,5vw,4.5rem) clamp(1.75rem,8vw,7rem);
+  overflow-y:auto;
+}
+.slide[hidden]{display:none;}
+.slide__inner{max-width:920px;width:100%;margin:0 auto;}
+.eyebrow{
+  font-family:var(--font-body);font-weight:600;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 .9rem;
+}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.9rem,4.2vw,3rem);
+  line-height:1.08;margin:0 0 .6rem;text-wrap:balance;letter-spacing:-.01em;}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,3.1vw,2.15rem);
+  line-height:1.15;margin:0 0 1.1rem;text-wrap:balance;color:var(--ink);}
+h3{font-family:var(--font-body);font-weight:600;font-size:clamp(1.05rem,1.8vw,1.3rem);
+  margin:1.4rem 0 .6rem;color:var(--ink-muted);}
+p{font-size:clamp(1rem,1.35vw,1.15rem);line-height:1.6;margin:0 0 .85rem;color:var(--ink);max-width:62ch;}
+ul,ol{margin:0 0 1rem;padding-left:1.3rem;}
+li{font-size:clamp(1rem,1.3vw,1.12rem);line-height:1.55;margin-bottom:.55rem;max-width:62ch;color:var(--ink);}
+li::marker{color:var(--accent);}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink-muted);}
+a{color:var(--accent);}
+hr{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+blockquote{
+  margin:1rem 0;padding:.8rem 1.1rem;border-left:3px solid var(--accent-2);
+  background:var(--surface-2);border-radius:0 8px 8px 0;color:var(--ink-muted);
+  font-size:.98rem;
+}
+blockquote p{margin:0;max-width:none;color:var(--ink-muted);}
+blockquote::before{content:"Demo";display:block;font-family:var(--font-body);font-weight:700;
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.3rem;}
+
+.table-wrap{overflow-x:auto;margin:0 0 1.1rem;border:1px solid var(--border);border-radius:10px;}
+table{border-collapse:collapse;width:100%;font-size:clamp(.85rem,1.2vw,.98rem);}
+th,td{padding:.55rem .85rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+th{background:var(--surface-2);font-family:var(--font-body);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums;}
+td{color:var(--ink-muted);font-variant-numeric:tabular-nums;}
+tr:last-child td{border-bottom:none;}
+td:first-child,th:first-child{color:var(--ink);font-weight:600;}
+
+.code-panel{
+  margin:0 0 1.1rem;border-radius:12px;overflow:hidden;background:var(--code-bg);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.code-panel__bar{
+  display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;background:var(--code-bar);
+}
+.code-panel__dot{width:9px;height:9px;border-radius:50%;background:var(--ink-muted);opacity:.5;}
+.code-panel__tab{
+  margin-left:.3rem;font-family:var(--font-mono);font-size:.72rem;color:var(--code-ink);opacity:.75;
+  letter-spacing:.02em;
+}
+.code-panel pre{margin:0;padding:1rem 1.2rem;overflow-x:auto;}
+.code-panel code{
+  font-family:var(--font-mono);font-size:clamp(.82rem,1.2vw,.98rem);line-height:1.65;
+  color:var(--code-ink);white-space:pre;
+}
+:not(pre)>code{
+  font-family:var(--font-mono);background:var(--surface-2);color:var(--ink);
+  padding:.1rem .4rem;border-radius:5px;font-size:.9em;
+}
+.hljs-keyword,.hljs-built_in{color:var(--code-keyword);font-weight:600;}
+.hljs-string,.hljs-symbol{color:var(--code-string);}
+.hljs-comment{color:var(--code-comment);font-style:italic;}
+.hljs-number,.hljs-literal{color:var(--code-number);}
+.hljs-title,.hljs-title.function_,.hljs-section{color:var(--code-title);}
+.hljs-attr,.hljs-variable{color:var(--code-ink);}
+
+/* Hero (deck title) + section divider slides */
+.slide--hero .slide__inner,.slide--section .slide__inner{position:relative;}
+.slide--section h1,.slide--hero h1{font-size:clamp(2.1rem,5vw,3.6rem);}
+.slide--section .marker,.slide--hero .marker{
+  position:absolute;top:-2.4rem;right:-.5rem;font-family:var(--font-display);font-weight:700;
+  font-size:clamp(5rem,16vw,11rem);color:var(--surface-2);z-index:-1;line-height:1;
+  user-select:none;
+}
+.slide--section .accent-bar,.slide--hero .accent-bar{width:52px;height:5px;background:var(--accent);
+  border-radius:3px;margin-bottom:1.1rem;}
+.pill{
+  display:inline-block;font-family:var(--font-body);font-weight:600;font-size:.82rem;
+  color:var(--accent);background:var(--surface-2);border:1px solid var(--border);
+  padding:.28rem .8rem;border-radius:99px;margin:0 0 1rem;
+}
+
+/* HUD */
+.hud{
+  flex:none;display:flex;align-items:center;gap:.9rem;padding:.7rem 1.1rem;
+  background:var(--surface);border-top:1px solid var(--border);
+}
+.hud-btn{
+  font-family:var(--font-body);font-size:1.2rem;line-height:1;width:2.3rem;height:2.3rem;
+  border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;
+  transition:background .15s ease,border-color .15s ease;
+}
+.hud-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hud-btn:disabled{opacity:.35;cursor:default;}
+.hud-btn:focus-visible,.hud-fab:focus-visible,.ov-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.hud-info{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:.7rem;}
+.hud-badge{
+  font-family:var(--font-body);font-weight:700;font-size:.72rem;letter-spacing:.06em;
+  color:var(--accent-ink);background:var(--accent);padding:.22rem .55rem;border-radius:6px;flex:none;
+}
+.hud-section{
+  font-family:var(--font-body);font-weight:500;font-size:.85rem;color:var(--ink-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;min-width:0;
+}
+.hud-count{
+  font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);flex:none;
+  font-variant-numeric:tabular-nums;
+}
+.hud-fab{
+  position:fixed;bottom:4.6rem;right:1.1rem;width:2.5rem;height:2.5rem;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-muted);cursor:pointer;
+  font-size:1.15rem;box-shadow:var(--shadow);
+}
+.hud-fab:hover{color:var(--accent);border-color:var(--accent);}
+.zone{position:absolute;top:0;bottom:0;width:14%;cursor:pointer;z-index:2;background:transparent;border:none;}
+.zone--prev{left:0;}
+.zone--next{right:0;}
+
+/* Overview */
+.overview{
+  position:fixed;inset:0;background:color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter:blur(6px);z-index:20;overflow-y:auto;padding:clamp(1.5rem,4vw,3rem);
+}
+.overview[hidden]{display:none;}
+.overview__head{display:flex;align-items:center;justify-content:space-between;max-width:1100px;
+  margin:0 auto 1.2rem;}
+.overview__head h2{margin:0;font-size:1.3rem;}
+.overview__close{
+  width:2.3rem;height:2.3rem;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+  color:var(--ink);cursor:pointer;font-size:1.1rem;
+}
+.ov-grid{
+  max-width:1100px;margin:0 auto;display:grid;gap:.7rem;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+}
+.ov-item{
+  text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:10px;
+  padding:.8rem .9rem;cursor:pointer;color:var(--ink);font-family:var(--font-body);
+}
+.ov-item:hover{border-color:var(--accent);}
+.ov-item small{display:block;color:var(--accent);font-weight:700;font-size:.72rem;
+  letter-spacing:.06em;margin-bottom:.3rem;font-variant-numeric:tabular-nums;}
+.ov-item span{display:block;font-size:.88rem;color:var(--ink-muted);line-height:1.35;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.ov-item.is-current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+
+@media (prefers-reduced-motion: reduce){
+  .progress-fill{transition:none;}
+}
+@media (max-width:640px){
+  .hud-section{display:none;}
+  .zone{width:20%;}
+}
+</style>
+
+<div class="stage" id="stage">
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="viewport" id="viewport">
+    <button class="zone zone--prev" id="zonePrev" aria-label="Slide trước"></button>
+    <button class="zone zone--next" id="zoneNext" aria-label="Slide tiếp theo"></button>
+  </div>
+  <div class="hud">
+    <button class="hud-btn" id="prevBtn" aria-label="Slide trước">‹</button>
+    <div class="hud-info">
+      <span class="hud-badge">Buổi 03/04</span>
+      <span class="hud-section" id="sectionLabel">Stored Procedure, Function & Trigger</span>
+      <span class="hud-count" id="slideCount">1 / 1</span>
+    </div>
+    <button class="hud-btn" id="nextBtn" aria-label="Slide tiếp theo">›</button>
+  </div>
+  <button class="hud-fab" id="overviewBtn" title="Xem tất cả slide" aria-label="Xem tất cả slide">⊞</button>
+</div>
+<div class="overview" id="overviewPanel" hidden>
+  <div class="overview__head">
+    <h2>Toàn bộ slide</h2>
+    <button class="overview__close" id="overviewClose" aria-label="Đóng">✕</button>
+  </div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script id="deck-source" type="application/json">"---\nmarp: true\ntheme: default\npaginate: true\n---\n\n# Buổi 3: Stored Procedure, Function & Trigger\n\n### Lập trình trong SQL Server\n\n**Mục tiêu buổi học:**\n\n- Viết được Stored Procedure có tham số đầu vào, tham số OUTPUT, RETURN\n- Xử lý lỗi và transaction an toàn trong Procedure (TRY/CATCH, ROLLBACK)\n- Viết được Scalar Function và Table-Valued Function, hiểu khi nào dùng Function thay vì Procedure\n- Hiểu khái niệm Trigger (AFTER/INSTEAD OF) ở mức giới thiệu, biết rủi ro khi lạm dụng\n- Áp dụng được các khái niệm trên với CSDL CompanyDB\n\n---\n\n## Agenda (180 phút)\n\n| # | Chủ đề | Thời lượng |\n|---|--------|-----------|\n| 1 | Stored Procedure cơ bản | 40 phút |\n| 2 | Stored Procedure nâng cao (OUTPUT, TRY/CATCH, Transaction) | 30 phút |\n| 3 | Function (Scalar & Table-Valued) | 50 phút |\n| 4 | Trigger (giới thiệu sơ lược) | 30 phút |\n| 5 | Tổng kết + Q&A | 10 phút |\n| — | *Thực hành (lab) — tách riêng* | *30 phút* |\n\n---\n\n# Phần 1: Stored Procedure cơ bản\n\n## Stored Procedure là gì?\n\n- Một khối lệnh T-SQL được **đặt tên, lưu sẵn** trong CSDL\n- Có thể nhận **tham số đầu vào**, thực thi logic, trả kết quả (result set, OUTPUT, RETURN)\n- Gọi lại nhiều lần bằng `EXEC`/`EXECUTE` thay vì gửi lại toàn bộ câu lệnh SQL\n\n---\n\n## Lợi ích của Stored Procedure\n\n- **Bảo mật**: cấp quyền EXEC cho user mà không cần cấp quyền trực tiếp trên bảng\n- **Tái sử dụng**: logic nghiệp vụ dùng chung ở nhiều nơi (app, report, job...)\n- **Giảm round-trip**: nhiều câu lệnh gộp thành 1 lần gọi từ client đến server\n- **Execution plan biên dịch sẵn**: SQL Server cache plan, lần gọi sau nhanh hơn (không phải parse/compile lại)\n- **Giảm SQL Injection**: khi dùng tham số đúng cách thay vì nối chuỗi SQL động\n\n---\n\n## Cú pháp CREATE PROCEDURE\n\n```sql\nCREATE PROCEDURE dbo.usp_GetOrdersByCustomer\n    @CustomerID INT\nAS\nBEGIN\n    SET NOCOUNT ON; -- tránh trả về thông báo \"n rows affected\"\n\n    SELECT o.OrderID, o.OrderDate, o.Status, o.EmployeeID\n    FROM Orders o\n    WHERE o.CustomerID = @CustomerID\n    ORDER BY o.OrderDate DESC;\nEND;\n```\n\n- `SET NOCOUNT ON` là thói quen tốt: giảm network traffic, tránh nhiễu ở client\n\n---\n\n## Gọi Stored Procedure\n\n```sql\n-- Cách 1: EXEC + truyền tham số theo thứ tự\nEXEC dbo.usp_GetOrdersByCustomer 3;\n\n-- Cách 2: EXECUTE + truyền tham số theo tên (khuyến khích)\nEXECUTE dbo.usp_GetOrdersByCustomer @CustomerID = 3;\n```\n\n- Nên truyền tham số theo **tên** (`@CustomerID = 3`) để code rõ ràng, không phụ thuộc thứ tự khai báo\n- Có thể sửa lại (`ALTER PROCEDURE`) hoặc xóa (`DROP PROCEDURE`) khi cần\n\n---\n\n## Nhiều tham số đầu vào\n\n```sql\nCREATE PROCEDURE dbo.usp_GetOrdersByCustomerAndStatus\n    @CustomerID INT,\n    @Status     NVARCHAR(20)\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    SELECT OrderID, OrderDate, Status\n    FROM Orders\n    WHERE CustomerID = @CustomerID\n      AND Status = @Status;\nEND;\n```\n\n```sql\nEXEC dbo.usp_GetOrdersByCustomerAndStatus\n    @CustomerID = 3, @Status = 'Completed';\n```\n\n---\n\n# Phần 2: Stored Procedure nâng cao\n\n## Tham số OUTPUT\n\n- Cho phép Procedure **trả giá trị ngược lại** cho nơi gọi (ngoài result set)\n- Khai báo bằng từ khóa `OUTPUT` cả ở `CREATE PROCEDURE` lẫn khi `EXEC`\n\n```sql\nCREATE PROCEDURE dbo.usp_GetOrderTotal\n    @OrderID INT,\n    @Total   MONEY OUTPUT\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    SELECT @Total = SUM(Quantity * UnitPrice)\n    FROM OrderDetails\n    WHERE OrderID = @OrderID;\nEND;\n```\n\n```sql\nDECLARE @T MONEY;\nEXEC dbo.usp_GetOrderTotal @OrderID = 1, @Total = @T OUTPUT;\nSELECT @T AS OrderTotal;\n```\n\n---\n\n## Giá trị mặc định tham số & RETURN\n\n```sql\nCREATE PROCEDURE dbo.usp_CountOrdersByStatus\n    @Status NVARCHAR(20) = 'Pending' -- giá trị mặc định\nAS\nBEGIN\n    SET NOCOUNT ON;\n    RETURN (SELECT COUNT(*) FROM Orders WHERE Status = @Status);\nEND;\n```\n\n```sql\nDECLARE @Count INT;\nEXEC @Count = dbo.usp_CountOrdersByStatus; -- dùng mặc định 'Pending'\nSELECT @Count;\n```\n\n- `RETURN` chỉ trả về **1 số nguyên** (thường dùng làm mã lỗi/status), không dùng để trả dữ liệu nghiệp vụ\n\n---\n\n## Xử lý lỗi: TRY/CATCH + THROW/RAISERROR\n\n```sql\nBEGIN TRY\n    SELECT 1 / 0; -- lỗi chia cho 0\nEND TRY\nBEGIN CATCH\n    SELECT\n        ERROR_NUMBER()   AS ErrorNumber,\n        ERROR_MESSAGE()  AS ErrorMessage,\n        ERROR_LINE()     AS ErrorLine;\n\n    THROW; -- ném lại lỗi gốc cho tầng gọi (khuyến nghị, từ SQL 2012+)\nEND CATCH;\n```\n\n- `THROW` (không tham số) giữ nguyên thông tin lỗi gốc — nên dùng thay cho `RAISERROR` trong code mới\n- `RAISERROR('message', severity, state)` vẫn còn dùng khi cần custom message có định dạng\n\n---\n\n## Transaction trong Procedure\n\n- `BEGIN TRAN` mở transaction, `COMMIT` xác nhận, `ROLLBACK` hủy toàn bộ thay đổi\n- Kết hợp TRY/CATCH: lỗi xảy ra ở đâu → ROLLBACK toàn bộ, đảm bảo dữ liệu nhất quán (all-or-nothing)\n\n```sql\nBEGIN TRY\n    BEGIN TRAN;\n        UPDATE Products SET StockQty = StockQty - 5 WHERE ProductID = 1;\n        -- ... các lệnh khác\n    COMMIT TRAN;\nEND TRY\nBEGIN CATCH\n    IF @@TRANCOUNT > 0 ROLLBACK TRAN;\n    THROW;\nEND CATCH;\n```\n\n---\n\n## Ví dụ tổng hợp: Procedure tạo đơn hàng mới\n\n```sql\nCREATE PROCEDURE dbo.usp_CreateOrder\n    @CustomerID INT,\n    @EmployeeID INT,\n    @ProductID  INT,\n    @Quantity   INT,\n    @NewOrderID INT OUTPUT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    BEGIN TRY\n        BEGIN TRAN;\n\n        IF NOT EXISTS (SELECT 1 FROM Products\n                       WHERE ProductID = @ProductID AND StockQty >= @Quantity)\n            THROW 50001, 'Không đủ hàng trong kho.', 1;\n\n        INSERT INTO Orders (CustomerID, EmployeeID, OrderDate, Status)\n        VALUES (@CustomerID, @EmployeeID, GETDATE(), 'Pending');\n\n        SET @NewOrderID = SCOPE_IDENTITY();\n```\n\n---\n\n## Ví dụ tổng hợp (tiếp theo)\n\n```sql\n        INSERT INTO OrderDetails (OrderID, ProductID, Quantity, UnitPrice)\n        SELECT @NewOrderID, @ProductID, @Quantity, UnitPrice\n        FROM Products WHERE ProductID = @ProductID;\n\n        UPDATE Products\n        SET StockQty = StockQty - @Quantity\n        WHERE ProductID = @ProductID;\n\n        COMMIT TRAN;\n    END TRY\n    BEGIN CATCH\n        IF @@TRANCOUNT > 0 ROLLBACK TRAN;\n        THROW;\n    END CATCH\nEND;\n```\n\n- `SCOPE_IDENTITY()`: lấy giá trị IDENTITY vừa insert **trong cùng scope** (an toàn hơn `@@IDENTITY`)\n- Nếu bất kỳ bước nào lỗi → toàn bộ transaction bị hủy, kho hàng và đơn hàng không bị lệch nhau\n\n---\n\n# Phần 3: Function\n\n## Scalar Function\n\n- Nhận tham số đầu vào, **trả về đúng 1 giá trị** (số, chuỗi, ngày...)\n- Có thể dùng trực tiếp trong `SELECT`, `WHERE`, `JOIN`\n\n```sql\nCREATE FUNCTION dbo.ufn_GetYearsOfService (@HireDate DATE)\nRETURNS INT\nAS\nBEGIN\n    RETURN DATEDIFF(YEAR, @HireDate, GETDATE());\nEND;\n```\n\n```sql\nSELECT FullName, HireDate,\n       dbo.ufn_GetYearsOfService(HireDate) AS YearsOfService\nFROM Employees;\n```\n\n---\n\n## Table-Valued Function: Inline TVF\n\n- Trả về **1 bảng**, bên trong chỉ có **1 câu lệnh RETURN (SELECT)** duy nhất\n- SQL Server tối ưu hóa như một view có tham số → hiệu năng tốt\n\n```sql\nCREATE FUNCTION dbo.ufn_OrdersByDateRange\n    (@FromDate DATE, @ToDate DATE)\nRETURNS TABLE\nAS\nRETURN\n(\n    SELECT OrderID, CustomerID, OrderDate, Status\n    FROM Orders\n    WHERE OrderDate BETWEEN @FromDate AND @ToDate\n);\n```\n\n```sql\nSELECT * FROM dbo.ufn_OrdersByDateRange('2024-01-01', '2024-12-31');\n```\n\n---\n\n## Table-Valued Function: Multi-statement TVF\n\n- Khai báo biến bảng `RETURNS @KetQua TABLE (...)`, cho phép **nhiều câu lệnh** xử lý trước khi trả kết quả\n- Linh hoạt hơn Inline TVF nhưng thường **hiệu năng kém hơn** (SQL Server khó tối ưu hóa qua nhiều bước)\n\n```sql\nCREATE FUNCTION dbo.ufn_OrdersByDateRangeMS\n    (@FromDate DATE, @ToDate DATE)\nRETURNS @Result TABLE (OrderID INT, CustomerName NVARCHAR(100), OrderDate DATE)\nAS\nBEGIN\n    INSERT INTO @Result\n    SELECT o.OrderID, c.CustomerName, o.OrderDate\n    FROM Orders o JOIN Customers c ON o.CustomerID = c.CustomerID\n    WHERE o.OrderDate BETWEEN @FromDate AND @ToDate;\n\n    RETURN;\nEND;\n```\n\n---\n\n## Function vs Stored Procedure\n\n| Tiêu chí | Function | Stored Procedure |\n|---|---|---|\n| Dùng trong SELECT/JOIN | Có | Không |\n| Side-effect (INSERT/UPDATE/DELETE bảng thật) | Không cho phép | Có |\n| Transaction (BEGIN TRAN...) | Không hỗ trợ | Có |\n| TRY/CATCH đầy đủ | Hạn chế | Đầy đủ |\n| Tham số OUTPUT | Không | Có |\n| Gọi Procedure bên trong | Không được | Được |\n\n- Nguyên tắc chọn: cần **trả dữ liệu để SELECT/JOIN** → Function; cần **thay đổi dữ liệu, transaction, xử lý lỗi phức tạp** → Procedure\n\n---\n\n# Phần 4: Trigger\n\n> **Phần giới thiệu — không đi sâu.** Buổi học chỉ giúp bạn nhận biết khái niệm và biết khi nào nên/không nên dùng. Không có bài lab chuyên sâu về Trigger.\n\n## Trigger là gì?\n\n- Đoạn code **tự động thực thi** khi có sự kiện INSERT/UPDATE/DELETE xảy ra trên bảng\n- Hai loại chính:\n  - **AFTER trigger**: chạy **sau khi** thao tác đã xảy ra trên bảng\n  - **INSTEAD OF trigger**: chạy **thay thế** thao tác gốc (thường dùng trên view)\n\n---\n\n## Bảng ảo inserted / deleted\n\n- Trong trigger, SQL Server cung cấp 2 bảng ảo tạm thời:\n  - `inserted`: chứa các dòng **mới** (sau INSERT/UPDATE)\n  - `deleted`: chứa các dòng **cũ** (trước UPDATE/DELETE)\n- UPDATE = vừa có trong `deleted` (giá trị cũ) vừa có trong `inserted` (giá trị mới)\n\n---\n\n## Ví dụ: AFTER INSERT trigger trừ kho tự động\n\n```sql\nCREATE TRIGGER trg_OrderDetails_AfterInsert\nON OrderDetails\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n\n    UPDATE p\n    SET p.StockQty = p.StockQty - i.Quantity\n    FROM Products p\n    JOIN inserted i ON p.ProductID = i.ProductID;\nEND;\n```\n\n- Mỗi khi có dòng mới thêm vào `OrderDetails`, `StockQty` trong `Products` tự động bị trừ tương ứng\n- Lưu ý: nếu Procedure `usp_CreateOrder` ở phần 2 **cũng** tự trừ kho, cần tránh trừ 2 lần (chọn 1 nơi xử lý)\n\n---\n\n## Cảnh báo: rủi ro khi lạm dụng Trigger\n\n- **Khó debug**: lỗi xảy ra \"âm thầm\", không thấy ngay trong câu lệnh gốc\n- **Ẩn logic nghiệp vụ**: dev khác không biết INSERT đơn giản lại kéo theo nhiều thay đổi khác\n- **Ảnh hưởng performance**: trigger chạy trong cùng transaction với câu lệnh gốc, làm chậm thao tác\n- **Trigger lồng nhau** (trigger gọi trigger khác) càng khó kiểm soát\n- Nguyên tắc: chỉ dùng Trigger cho việc **thực sự cần tự động** (audit log, ràng buộc phức tạp), ưu tiên Procedure khi có thể\n\n---\n\n# Tổng kết Buổi 3\n\n- **Stored Procedure**: đóng gói logic, tham số IN/OUT, RETURN, TRY/CATCH, transaction — công cụ chính để xử lý nghiệp vụ an toàn\n- **Function**: Scalar và Table-Valued, dùng được trong SELECT/JOIN, nhưng không side-effect, không transaction\n- **Trigger**: tự động hóa theo sự kiện bảng, mạnh nhưng dễ lạm dụng — dùng thận trọng\n\n## Preview Buổi 4: SQL Server Agent Job, Security, Performance Tuning\n\n- **SQL Server Agent Job**: lập lịch chạy tự động (backup, xử lý batch định kỳ...)\n- **Security**: login, user, role, phân quyền chi tiết\n- **Performance Tuning**: đọc execution plan, index tuning, tối ưu câu lệnh chậm\n"</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function(){
+  var raw = JSON.parse(document.getElementById('deck-source').textContent);
+  var DECK_KEY = 'sqltraining-slide-' + 03;
+
+  function stripFrontmatter(lines){
+    if(lines[0] && lines[0].trim()==='---'){
+      for(var i=1;i<lines.length;i++){
+        if(lines[i].trim()==='---') return lines.slice(i+1);
+      }
+    }
+    return lines;
+  }
+  function splitSlides(text){
+    var lines = text.replace(/\r\n/g,'\n').split('\n');
+    lines = stripFrontmatter(lines);
+    var out=[], cur=[];
+    for(var i=0;i<lines.length;i++){
+      if(lines[i].trim()==='---'){ out.push(cur.join('\n').trim()); cur=[]; }
+      else cur.push(lines[i]);
+    }
+    out.push(cur.join('\n').trim());
+    return out.filter(function(s){return s.length>0;});
+  }
+
+  marked.setOptions({breaks:false});
+  var chunks = splitSlides(raw);
+  var currentSection = 'Stored Procedure, Function & Trigger';
+  var slides = chunks.map(function(chunk, idx){
+    var isDivider = /^#\s+[^#]/.test(chunk);
+    var firstLine = (chunk.match(/^#\s+(.+)$/m)||[])[1] || '';
+    var summary = (chunk.match(/^#{1,3}\s+(.+)$/m)||[])[1] || chunk.slice(0,60);
+    if(isDivider && firstLine){
+      currentSection = firstLine.replace(/^Phần\s*\d+\s*:\s*/i,'').trim();
+    }
+    return {
+      md: chunk,
+      isDivider: isDivider && idx>0,
+      isHero: idx===0,
+      section: currentSection,
+      summary: summary,
+      index: idx
+    };
+  });
+
+  var viewport = document.getElementById('viewport');
+  slides.forEach(function(s, idx){
+    var section = document.createElement('section');
+    section.className = 'slide' + (s.isHero?' slide--hero':(s.isDivider?' slide--section':''));
+    section.hidden = idx!==0;
+    section.setAttribute('data-index', idx);
+    var inner = document.createElement('div');
+    inner.className = 'slide__inner';
+    if(s.isHero || s.isDivider){
+      var num = document.createElement('div');
+      num.className='marker';
+      num.textContent = String(idx+1).padStart(2,'0');
+      inner.appendChild(num);
+      var bar = document.createElement('div');
+      bar.className='accent-bar';
+      inner.appendChild(bar);
+    }
+    var content = document.createElement('div');
+    content.innerHTML = marked.parse(s.md);
+    inner.appendChild(content);
+    section.appendChild(inner);
+    viewport.appendChild(section);
+
+    content.querySelectorAll('table').forEach(function(t){
+      var wrap = document.createElement('div');
+      wrap.className='table-wrap';
+      t.parentNode.insertBefore(wrap,t);
+      wrap.appendChild(t);
+    });
+    content.querySelectorAll('pre').forEach(function(pre){
+      var code = pre.querySelector('code');
+      if(!code) return;
+      var lang = (code.className.match(/language-(\w+)/)||[])[1] || 'sql';
+      var panel = document.createElement('div');
+      panel.className='code-panel';
+      var bar = document.createElement('div');
+      bar.className='code-panel__bar';
+      bar.innerHTML = '<span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__tab">Query.'+ (lang==='sql'?'sql':lang) +'</span>';
+      pre.parentNode.insertBefore(panel, pre);
+      panel.appendChild(bar);
+      panel.appendChild(pre);
+      try{
+        if(!code.className.includes('language-')) code.className += ' language-sql';
+        hljs.highlightElement(code);
+      }catch(e){}
+    });
+  });
+
+  var total = slides.length;
+  var current = 0;
+  try{
+    var saved = parseInt(localStorage.getItem(DECK_KEY),10);
+    if(!isNaN(saved) && saved>=0 && saved<total) current = saved;
+  }catch(e){}
+
+  var progressFill = document.getElementById('progressFill');
+  var sectionLabel = document.getElementById('sectionLabel');
+  var slideCount = document.getElementById('slideCount');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var allSlideEls = viewport.querySelectorAll('.slide');
+
+  function render(){
+    allSlideEls.forEach(function(el,idx){ el.hidden = idx!==current; });
+    progressFill.style.width = ((current+1)/total*100)+'%';
+    sectionLabel.textContent = slides[current].section;
+    slideCount.textContent = (current+1)+' / '+total;
+    prevBtn.disabled = current===0;
+    nextBtn.disabled = current===total-1;
+    try{ localStorage.setItem(DECK_KEY,String(current)); }catch(e){}
+  }
+  function go(idx){
+    if(idx<0||idx>=total) return;
+    current = idx;
+    render();
+  }
+  prevBtn.addEventListener('click',function(){go(current-1);});
+  nextBtn.addEventListener('click',function(){go(current+1);});
+  document.getElementById('zonePrev').addEventListener('click',function(){go(current-1);});
+  document.getElementById('zoneNext').addEventListener('click',function(){go(current+1);});
+
+  document.addEventListener('keydown', function(e){
+    if(!overviewPanel.hidden){
+      if(e.key==='Escape') closeOverview();
+      return;
+    }
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ go(current+1); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ go(current-1); e.preventDefault(); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(total-1); }
+    else if(e.key==='o'||e.key==='O'){ openOverview(); }
+  });
+
+  var touchX=null;
+  viewport.addEventListener('touchstart',function(e){touchX=e.touches[0].clientX;},{passive:true});
+  viewport.addEventListener('touchend',function(e){
+    if(touchX===null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx)>50){ dx<0 ? go(current+1) : go(current-1); }
+    touchX=null;
+  },{passive:true});
+
+  var overviewPanel = document.getElementById('overviewPanel');
+  var overviewBtn = document.getElementById('overviewBtn');
+  var overviewClose = document.getElementById('overviewClose');
+  var ovGrid = document.getElementById('ovGrid');
+  slides.forEach(function(s,idx){
+    var btn = document.createElement('button');
+    btn.className='ov-item';
+    btn.innerHTML = '<small>'+String(idx+1).padStart(2,'0')+' · '+s.section+'</small><span>'+s.summary+'</span>';
+    btn.addEventListener('click',function(){ go(idx); closeOverview(); });
+    ovGrid.appendChild(btn);
+  });
+  function openOverview(){
+    overviewPanel.hidden=false;
+    ovGrid.querySelectorAll('.ov-item').forEach(function(el,idx){
+      el.classList.toggle('is-current', idx===current);
+    });
+  }
+  function closeOverview(){ overviewPanel.hidden=true; }
+  overviewBtn.addEventListener('click', openOverview);
+  overviewClose.addEventListener('click', closeOverview);
+  overviewPanel.addEventListener('click', function(e){ if(e.target===overviewPanel) closeOverview(); });
+
+  render();
+})();
+</script>

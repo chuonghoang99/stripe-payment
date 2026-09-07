@@ -1,0 +1,425 @@
+<title>Buổi 2 — Query & View</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F4F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#E7EDF2;
+  --ink:#10161D;
+  --ink-muted:#57697C;
+  --border:#D3DEE6;
+  --accent:#146C8C;
+  --accent-ink:#FFFFFF;
+  --accent-2:#9C7A1E;
+  --shadow:0 1px 2px rgba(16,22,29,.05), 0 8px 24px rgba(16,22,29,.06);
+  --code-bg:#0F1720;
+  --code-ink:#DCE6EE;
+  --code-bar:#182430;
+  --code-keyword:#6FD1FF;
+  --code-string:#F3C969;
+  --code-comment:#7C8A99;
+  --code-number:#9ECBA9;
+  --code-title:#C9A6F2;
+  --font-display:'IBM Plex Sans Condensed','Arial Narrow',sans-serif;
+  --font-body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A0E13;
+    --surface:#121820;
+    --surface-2:#1A222B;
+    --ink:#E7EDF3;
+    --ink-muted:#8FA0B0;
+    --border:#26313F;
+    --accent:#5FC1E6;
+    --accent-ink:#06141B;
+    --accent-2:#E7BE63;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A0E13;
+  --surface:#121820;
+  --surface-2:#1A222B;
+  --ink:#E7EDF3;
+  --ink-muted:#8FA0B0;
+  --border:#26313F;
+  --accent:#5FC1E6;
+  --accent-ink:#06141B;
+  --accent-2:#E7BE63;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font-body);
+  overflow:hidden;
+}
+.stage{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg);}
+.progress{height:3px;background:var(--surface-2);flex:none;}
+.progress-fill{height:100%;background:var(--accent);width:0%;transition:width .25s ease;}
+.viewport{position:relative;flex:1 1 auto;min-height:0;}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(1.75rem,5vw,4.5rem) clamp(1.75rem,8vw,7rem);
+  overflow-y:auto;
+}
+.slide[hidden]{display:none;}
+.slide__inner{max-width:920px;width:100%;margin:0 auto;}
+.eyebrow{
+  font-family:var(--font-body);font-weight:600;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin:0 0 .9rem;
+}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(1.9rem,4.2vw,3rem);
+  line-height:1.08;margin:0 0 .6rem;text-wrap:balance;letter-spacing:-.01em;}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.5rem,3.1vw,2.15rem);
+  line-height:1.15;margin:0 0 1.1rem;text-wrap:balance;color:var(--ink);}
+h3{font-family:var(--font-body);font-weight:600;font-size:clamp(1.05rem,1.8vw,1.3rem);
+  margin:1.4rem 0 .6rem;color:var(--ink-muted);}
+p{font-size:clamp(1rem,1.35vw,1.15rem);line-height:1.6;margin:0 0 .85rem;color:var(--ink);max-width:62ch;}
+ul,ol{margin:0 0 1rem;padding-left:1.3rem;}
+li{font-size:clamp(1rem,1.3vw,1.12rem);line-height:1.55;margin-bottom:.55rem;max-width:62ch;color:var(--ink);}
+li::marker{color:var(--accent);}
+strong{color:var(--ink);font-weight:600;}
+em{color:var(--ink-muted);}
+a{color:var(--accent);}
+hr{border:none;border-top:1px solid var(--border);margin:1.2rem 0;}
+blockquote{
+  margin:1rem 0;padding:.8rem 1.1rem;border-left:3px solid var(--accent-2);
+  background:var(--surface-2);border-radius:0 8px 8px 0;color:var(--ink-muted);
+  font-size:.98rem;
+}
+blockquote p{margin:0;max-width:none;color:var(--ink-muted);}
+blockquote::before{content:"Demo";display:block;font-family:var(--font-body);font-weight:700;
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:.3rem;}
+
+.table-wrap{overflow-x:auto;margin:0 0 1.1rem;border:1px solid var(--border);border-radius:10px;}
+table{border-collapse:collapse;width:100%;font-size:clamp(.85rem,1.2vw,.98rem);}
+th,td{padding:.55rem .85rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+th{background:var(--surface-2);font-family:var(--font-body);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums;}
+td{color:var(--ink-muted);font-variant-numeric:tabular-nums;}
+tr:last-child td{border-bottom:none;}
+td:first-child,th:first-child{color:var(--ink);font-weight:600;}
+
+.code-panel{
+  margin:0 0 1.1rem;border-radius:12px;overflow:hidden;background:var(--code-bg);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.code-panel__bar{
+  display:flex;align-items:center;gap:.5rem;padding:.5rem .8rem;background:var(--code-bar);
+}
+.code-panel__dot{width:9px;height:9px;border-radius:50%;background:var(--ink-muted);opacity:.5;}
+.code-panel__tab{
+  margin-left:.3rem;font-family:var(--font-mono);font-size:.72rem;color:var(--code-ink);opacity:.75;
+  letter-spacing:.02em;
+}
+.code-panel pre{margin:0;padding:1rem 1.2rem;overflow-x:auto;}
+.code-panel code{
+  font-family:var(--font-mono);font-size:clamp(.82rem,1.2vw,.98rem);line-height:1.65;
+  color:var(--code-ink);white-space:pre;
+}
+:not(pre)>code{
+  font-family:var(--font-mono);background:var(--surface-2);color:var(--ink);
+  padding:.1rem .4rem;border-radius:5px;font-size:.9em;
+}
+.hljs-keyword,.hljs-built_in{color:var(--code-keyword);font-weight:600;}
+.hljs-string,.hljs-symbol{color:var(--code-string);}
+.hljs-comment{color:var(--code-comment);font-style:italic;}
+.hljs-number,.hljs-literal{color:var(--code-number);}
+.hljs-title,.hljs-title.function_,.hljs-section{color:var(--code-title);}
+.hljs-attr,.hljs-variable{color:var(--code-ink);}
+
+/* Hero (deck title) + section divider slides */
+.slide--hero .slide__inner,.slide--section .slide__inner{position:relative;}
+.slide--section h1,.slide--hero h1{font-size:clamp(2.1rem,5vw,3.6rem);}
+.slide--section .marker,.slide--hero .marker{
+  position:absolute;top:-2.4rem;right:-.5rem;font-family:var(--font-display);font-weight:700;
+  font-size:clamp(5rem,16vw,11rem);color:var(--surface-2);z-index:-1;line-height:1;
+  user-select:none;
+}
+.slide--section .accent-bar,.slide--hero .accent-bar{width:52px;height:5px;background:var(--accent);
+  border-radius:3px;margin-bottom:1.1rem;}
+.pill{
+  display:inline-block;font-family:var(--font-body);font-weight:600;font-size:.82rem;
+  color:var(--accent);background:var(--surface-2);border:1px solid var(--border);
+  padding:.28rem .8rem;border-radius:99px;margin:0 0 1rem;
+}
+
+/* HUD */
+.hud{
+  flex:none;display:flex;align-items:center;gap:.9rem;padding:.7rem 1.1rem;
+  background:var(--surface);border-top:1px solid var(--border);
+}
+.hud-btn{
+  font-family:var(--font-body);font-size:1.2rem;line-height:1;width:2.3rem;height:2.3rem;
+  border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;flex:none;
+  transition:background .15s ease,border-color .15s ease;
+}
+.hud-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hud-btn:disabled{opacity:.35;cursor:default;}
+.hud-btn:focus-visible,.hud-fab:focus-visible,.ov-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.hud-info{flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:.7rem;}
+.hud-badge{
+  font-family:var(--font-body);font-weight:700;font-size:.72rem;letter-spacing:.06em;
+  color:var(--accent-ink);background:var(--accent);padding:.22rem .55rem;border-radius:6px;flex:none;
+}
+.hud-section{
+  font-family:var(--font-body);font-weight:500;font-size:.85rem;color:var(--ink-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 auto;min-width:0;
+}
+.hud-count{
+  font-family:var(--font-mono);font-size:.8rem;color:var(--ink-muted);flex:none;
+  font-variant-numeric:tabular-nums;
+}
+.hud-fab{
+  position:fixed;bottom:4.6rem;right:1.1rem;width:2.5rem;height:2.5rem;border-radius:50%;
+  border:1px solid var(--border);background:var(--surface);color:var(--ink-muted);cursor:pointer;
+  font-size:1.15rem;box-shadow:var(--shadow);
+}
+.hud-fab:hover{color:var(--accent);border-color:var(--accent);}
+.zone{position:absolute;top:0;bottom:0;width:14%;cursor:pointer;z-index:2;background:transparent;border:none;}
+.zone--prev{left:0;}
+.zone--next{right:0;}
+
+/* Overview */
+.overview{
+  position:fixed;inset:0;background:color-mix(in srgb, var(--bg) 92%, transparent);
+  backdrop-filter:blur(6px);z-index:20;overflow-y:auto;padding:clamp(1.5rem,4vw,3rem);
+}
+.overview[hidden]{display:none;}
+.overview__head{display:flex;align-items:center;justify-content:space-between;max-width:1100px;
+  margin:0 auto 1.2rem;}
+.overview__head h2{margin:0;font-size:1.3rem;}
+.overview__close{
+  width:2.3rem;height:2.3rem;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+  color:var(--ink);cursor:pointer;font-size:1.1rem;
+}
+.ov-grid{
+  max-width:1100px;margin:0 auto;display:grid;gap:.7rem;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+}
+.ov-item{
+  text-align:left;border:1px solid var(--border);background:var(--surface);border-radius:10px;
+  padding:.8rem .9rem;cursor:pointer;color:var(--ink);font-family:var(--font-body);
+}
+.ov-item:hover{border-color:var(--accent);}
+.ov-item small{display:block;color:var(--accent);font-weight:700;font-size:.72rem;
+  letter-spacing:.06em;margin-bottom:.3rem;font-variant-numeric:tabular-nums;}
+.ov-item span{display:block;font-size:.88rem;color:var(--ink-muted);line-height:1.35;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.ov-item.is-current{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+
+@media (prefers-reduced-motion: reduce){
+  .progress-fill{transition:none;}
+}
+@media (max-width:640px){
+  .hud-section{display:none;}
+  .zone{width:20%;}
+}
+</style>
+
+<div class="stage" id="stage">
+  <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="viewport" id="viewport">
+    <button class="zone zone--prev" id="zonePrev" aria-label="Slide trước"></button>
+    <button class="zone zone--next" id="zoneNext" aria-label="Slide tiếp theo"></button>
+  </div>
+  <div class="hud">
+    <button class="hud-btn" id="prevBtn" aria-label="Slide trước">‹</button>
+    <div class="hud-info">
+      <span class="hud-badge">Buổi 02/04</span>
+      <span class="hud-section" id="sectionLabel">Query nâng cao & View</span>
+      <span class="hud-count" id="slideCount">1 / 1</span>
+    </div>
+    <button class="hud-btn" id="nextBtn" aria-label="Slide tiếp theo">›</button>
+  </div>
+  <button class="hud-fab" id="overviewBtn" title="Xem tất cả slide" aria-label="Xem tất cả slide">⊞</button>
+</div>
+<div class="overview" id="overviewPanel" hidden>
+  <div class="overview__head">
+    <h2>Toàn bộ slide</h2>
+    <button class="overview__close" id="overviewClose" aria-label="Đóng">✕</button>
+  </div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script id="deck-source" type="application/json">"---\nmarp: true\npaginate: true\n---\n\n# Buổi 2: Query nâng cao & View\n\n### SQL Server cho Dev — Buổi 2/4 (180 phút)\n\nSau buổi học này bạn sẽ:\n\n- Viết được JOIN đúng loại (INNER/LEFT/RIGHT/FULL/CROSS/SELF) cho từng tình huống nghiệp vụ\n- Dùng được Subquery và CTE để chia nhỏ query phức tạp, biết khi nào dùng loại nào\n- Tổng hợp dữ liệu bằng GROUP BY/HAVING và phân biệt rõ với WHERE\n- Dùng Window Function (ROW_NUMBER, RANK, SUM OVER...) để xếp hạng và tính running total\n- Tạo và sử dụng VIEW để đơn giản hóa query và ẩn dữ liệu nhạy cảm\n\n---\n\n# Agenda Buổi 2 (180 phút)\n\n| # | Nội dung | Thời lượng |\n|---|----------|-----------|\n| 1 | Ôn nhanh SELECT/WHERE/ORDER BY + cú pháp T-SQL (TOP, OFFSET-FETCH) | 10p |\n| 2 | JOIN các loại | 40p |\n| 3 | Subquery & CTE | 30p |\n| 4 | Aggregate & GROUP BY/HAVING | 20p |\n| 5 | Window Functions | 30p |\n| 6 | View | 30p |\n| 7 | Tổng kết | 10p |\n| | **Lab thực hành** (tách riêng) | 30p |\n\n---\n\n## Phần 1: Ôn nhanh SELECT/WHERE/ORDER BY\n\n- Cú pháp cơ bản: bạn đã biết — không nhắc lại\n- T-SQL dùng **TOP** thay vì `LIMIT` (MySQL/Postgres)\n- T-SQL dùng **OFFSET ... FETCH NEXT** để phân trang\n\n```sql\n-- Lấy 5 nhân viên lương cao nhất\nSELECT TOP 5 FullName, Salary\nFROM Employees\nORDER BY Salary DESC;\n\n-- Phân trang: bỏ qua 5 dòng đầu, lấy 5 dòng tiếp theo\nSELECT EmployeeID, FullName, Salary\nFROM Employees\nORDER BY Salary DESC\nOFFSET 5 ROWS FETCH NEXT 5 ROWS ONLY;\n```\n\n---\n\n## Phần 1: TOP với PERCENT và WITH TIES\n\n- `TOP n PERCENT`: lấy % số dòng\n- `WITH TIES`: lấy thêm các dòng bằng giá trị với dòng cuối cùng\n\n```sql\n-- Lấy 20% nhân viên lương cao nhất\nSELECT TOP 20 PERCENT FullName, Salary\nFROM Employees\nORDER BY Salary DESC;\n\n-- Lấy top 3 nhưng giữ luôn các dòng đồng hạng\nSELECT TOP 3 WITH TIES FullName, Salary\nFROM Employees\nORDER BY Salary DESC;\n```\n\n> Lưu ý: `OFFSET/FETCH` bắt buộc phải có `ORDER BY` đi kèm.\n\n---\n\n# Phần 2: JOIN các loại (40 phút)\n\n- INNER JOIN\n- LEFT JOIN / RIGHT JOIN\n- FULL JOIN\n- CROSS JOIN\n- SELF JOIN\n\nTrực quan hóa bằng Venn diagram khi giảng trên lớp.\n\n---\n\n## INNER JOIN — chỉ lấy dòng khớp cả 2 bên\n\n- Trả về dòng có match ở **cả hai** bảng\n- Dùng nhiều nhất trong thực tế\n\n```sql\n-- Danh sách đơn hàng kèm tên khách hàng\nSELECT o.OrderID, o.OrderDate, c.CustomerName, o.Status\nFROM Orders o\nINNER JOIN Customers c ON o.CustomerID = c.CustomerID;\n```\n\n- Nếu `CustomerID` trong `Orders` không tồn tại trong `Customers` → dòng đó bị loại\n\n---\n\n## LEFT JOIN — giữ toàn bộ bảng trái\n\n- Giữ tất cả dòng bảng trái, dù không có match bên phải (NULL)\n- Dùng để tìm \"cái gì chưa có\" (chưa từng đặt hàng, chưa có nhân viên...)\n\n```sql\n-- Liệt kê TẤT CẢ khách hàng, kể cả khách chưa từng đặt hàng\nSELECT c.CustomerName, o.OrderID, o.OrderDate\nFROM Customers c\nLEFT JOIN Orders o ON c.CustomerID = o.CustomerID;\n\n-- Tìm khách hàng CHƯA từng đặt hàng\nSELECT c.CustomerName\nFROM Customers c\nLEFT JOIN Orders o ON c.CustomerID = o.CustomerID\nWHERE o.OrderID IS NULL;\n```\n\n---\n\n## RIGHT JOIN — giữ toàn bộ bảng phải\n\n- Ngược lại LEFT JOIN: giữ toàn bộ dòng bảng bên phải\n- Thực tế ít dùng vì luôn có thể viết lại bằng LEFT JOIN (đổi thứ tự bảng)\n\n```sql\n-- Tương đương ví dụ LEFT JOIN ở trên, chỉ đổi vị trí bảng\nSELECT c.CustomerName, o.OrderID\nFROM Orders o\nRIGHT JOIN Customers c ON o.CustomerID = c.CustomerID;\n```\n\n> Khuyến nghị: dùng LEFT JOIN cho dễ đọc, tránh RIGHT JOIN trừ khi có lý do đặc biệt\n\n---\n\n## FULL JOIN — giữ cả hai bên, khớp thì ghép\n\n- Trả về toàn bộ dòng của **cả hai** bảng\n- Dòng không khớp bên nào thì cột bên đó là NULL\n\n```sql\n-- Đối chiếu toàn bộ nhân viên và đơn hàng họ xử lý\n-- (kể cả nhân viên chưa xử lý đơn nào - giả định, minh họa cú pháp)\nSELECT e.FullName, o.OrderID\nFROM Employees e\nFULL JOIN Orders o ON e.EmployeeID = o.EmployeeID;\n```\n\n- Dùng khi cần thấy đầy đủ chênh lệch dữ liệu giữa 2 bảng (đối chiếu, audit)\n\n---\n\n## CROSS JOIN — tích Descartes\n\n- Ghép **mọi dòng** bảng A với **mọi dòng** bảng B (không cần điều kiện ON)\n- Số dòng kết quả = số dòng A × số dòng B\n- Cẩn thận: dễ tạo ra lượng dữ liệu khổng lồ\n\n```sql\n-- Sinh ma trận Category x City để phân tích \"ô trống\" thị trường\nSELECT DISTINCT p.Category, c.City\nFROM Products p\nCROSS JOIN Customers c;\n```\n\n- Ứng dụng thực tế: sinh lịch, sinh tổ hợp cấu hình, dữ liệu test\n\n---\n\n## SELF JOIN — bảng tự join với chính nó\n\n- Dùng khi bảng có quan hệ với chính nó (VD: `Employees.ManagerID -> Employees.EmployeeID`)\n- Coi như 2 bảng khác nhau bằng alias\n\n```sql\n-- Danh sách nhân viên kèm tên quản lý trực tiếp\nSELECT\n    nv.FullName  AS NhanVien,\n    ql.FullName  AS QuanLy\nFROM Employees nv\nLEFT JOIN Employees ql ON nv.ManagerID = ql.EmployeeID;\n```\n\n- LEFT JOIN vì có nhân viên không có quản lý (ManagerID NULL — giám đốc)\n\n---\n\n## JOIN nhiều bảng — ví dụ tổng hợp\n\n- Thực tế thường JOIN 3-4 bảng trở lên trong 1 query\n\n```sql\n-- Chi tiết đơn hàng: khách hàng, nhân viên, sản phẩm\nSELECT\n    o.OrderID,\n    c.CustomerName,\n    e.FullName   AS NhanVienBanHang,\n    p.ProductName,\n    od.Quantity,\n    od.UnitPrice,\n    od.Quantity * od.UnitPrice AS ThanhTien\nFROM Orders o\nINNER JOIN Customers c    ON o.CustomerID = c.CustomerID\nINNER JOIN Employees e    ON o.EmployeeID = e.EmployeeID\nINNER JOIN OrderDetails od ON o.OrderID = od.OrderID\nINNER JOIN Products p     ON od.ProductID = p.ProductID\nWHERE o.Status = 'Completed';\n```\n\n---\n\n# Phần 3: Subquery & CTE (30 phút)\n\n- Subquery trong WHERE\n- Subquery trong SELECT\n- Subquery trong FROM (derived table)\n- CTE (Common Table Expression) — `WITH`\n- So sánh CTE vs Subquery vs Temp table/Table variable\n\n---\n\n## Subquery trong WHERE\n\n- Dùng kết quả 1 query con để lọc query ngoài\n\n```sql\n-- Nhân viên có lương cao hơn lương trung bình toàn công ty\nSELECT FullName, Salary\nFROM Employees\nWHERE Salary > (SELECT AVG(Salary) FROM Employees);\n\n-- Khách hàng đã từng đặt đơn \"Completed\"\nSELECT CustomerName\nFROM Customers\nWHERE CustomerID IN (\n    SELECT CustomerID FROM Orders WHERE Status = 'Completed'\n);\n```\n\n---\n\n## Subquery tương quan (correlated) & EXISTS\n\n- Subquery tham chiếu đến bảng ngoài → chạy lại cho mỗi dòng\n- `EXISTS` thường nhanh hơn `IN` khi chỉ cần kiểm tra \"có tồn tại hay không\"\n\n```sql\n-- Khách hàng có ít nhất 1 đơn hàng\nSELECT c.CustomerName\nFROM Customers c\nWHERE EXISTS (\n    SELECT 1 FROM Orders o WHERE o.CustomerID = c.CustomerID\n);\n\n-- Nhân viên có lương cao nhất TRONG phòng ban của mình\nSELECT e1.FullName, e1.Salary, e1.DepartmentID\nFROM Employees e1\nWHERE Salary = (\n    SELECT MAX(e2.Salary)\n    FROM Employees e2\n    WHERE e2.DepartmentID = e1.DepartmentID\n);\n```\n\n---\n\n## Subquery trong SELECT và FROM\n\n- Trong SELECT: trả về 1 giá trị vô hướng (scalar) cho mỗi dòng\n- Trong FROM: dùng như 1 bảng tạm (derived table), bắt buộc có alias\n\n```sql\n-- Subquery trong SELECT: số đơn hàng của mỗi khách hàng\nSELECT\n    c.CustomerName,\n    (SELECT COUNT(*) FROM Orders o WHERE o.CustomerID = c.CustomerID) AS SoDonHang\nFROM Customers c;\n\n-- Subquery trong FROM: doanh thu theo khách hàng, chỉ lấy > 20 triệu\nSELECT dt.CustomerID, dt.TongDoanhThu\nFROM (\n    SELECT o.CustomerID, SUM(od.Quantity * od.UnitPrice) AS TongDoanhThu\n    FROM Orders o\n    JOIN OrderDetails od ON o.OrderID = od.OrderID\n    GROUP BY o.CustomerID\n) AS dt\nWHERE dt.TongDoanhThu > 20000000;\n```\n\n---\n\n## CTE — Common Table Expression\n\n- Cú pháp `WITH ten_cte AS (...)` — đặt trước câu SELECT chính\n- Giúp query dài dễ đọc hơn nhiều so với subquery lồng nhau\n- Chỉ tồn tại trong phạm vi 1 câu lệnh\n\n```sql\nWITH DoanhThuKhachHang AS (\n    SELECT o.CustomerID, SUM(od.Quantity * od.UnitPrice) AS TongDoanhThu\n    FROM Orders o\n    JOIN OrderDetails od ON o.OrderID = od.OrderID\n    WHERE o.Status = 'Completed'\n    GROUP BY o.CustomerID\n)\nSELECT c.CustomerName, dtk.TongDoanhThu\nFROM DoanhThuKhachHang dtk\nJOIN Customers c ON c.CustomerID = dtk.CustomerID\nORDER BY dtk.TongDoanhThu DESC;\n```\n\n---\n\n## CTE đệ quy (recursive) — giới thiệu\n\n- Dùng để duyệt cây phân cấp (VD: sơ đồ tổ chức nhân viên - quản lý)\n\n```sql\nWITH SoDoToChuc AS (\n    -- Anchor: nhân viên cấp cao nhất (không có quản lý)\n    SELECT EmployeeID, FullName, ManagerID, 0 AS Cap\n    FROM Employees\n    WHERE ManagerID IS NULL\n\n    UNION ALL\n\n    -- Recursive: nối tiếp xuống cấp dưới\n    SELECT e.EmployeeID, e.FullName, e.ManagerID, sdt.Cap + 1\n    FROM Employees e\n    JOIN SoDoToChuc sdt ON e.ManagerID = sdt.EmployeeID\n)\nSELECT * FROM SoDoToChuc ORDER BY Cap;\n```\n\n---\n\n## So sánh: CTE vs Subquery vs Temp Table / Table Variable\n\n| Tiêu chí | Subquery | CTE | Temp Table (`#t`) | Table Variable (`@t`) |\n|---|---|---|---|---|\n| Tái sử dụng nhiều lần trong query | Không (phải viết lại) | Có (gọi tên nhiều lần) | Có | Có |\n| Đệ quy | Không | Có | Không | Không |\n| Có thể đánh index riêng | Không | Không | Có | Hạn chế |\n| Phạm vi tồn tại | 1 câu lệnh | 1 câu lệnh | Cả session/batch | Cả batch |\n| Phù hợp dữ liệu lớn, dùng lại nhiều lần | Kém | Trung bình | Tốt | Trung bình |\n\n- Quy tắc chọn nhanh: query đơn giản → subquery; query dễ đọc, dùng lại tên → CTE; dữ liệu lớn cần index/dùng nhiều bước → temp table\n\n---\n\n# Phần 4: Aggregate & GROUP BY/HAVING (20 phút)\n\n- Hàm tổng hợp: `SUM`, `COUNT`, `AVG`, `MIN`, `MAX`\n- `GROUP BY` theo 1 hoặc nhiều cột\n- `HAVING` lọc SAU khi gom nhóm — khác `WHERE`\n\n---\n\n## Hàm Aggregate cơ bản\n\n```sql\n-- Tổng quan đơn hàng\nSELECT\n    COUNT(*)              AS SoDonHang,\n    SUM(od.Quantity)      AS TongSoLuong,\n    AVG(od.UnitPrice)     AS DonGiaTrungBinh,\n    MIN(od.UnitPrice)     AS DonGiaThapNhat,\n    MAX(od.UnitPrice)     AS DonGiaCaoNhat\nFROM OrderDetails od;\n```\n\n- `COUNT(*)`: đếm tất cả dòng, kể cả NULL\n- `COUNT(cột)`: chỉ đếm dòng có giá trị khác NULL ở cột đó\n\n---\n\n## GROUP BY nhiều cột\n\n```sql\n-- Doanh thu theo từng nhân viên, theo từng tháng\nSELECT\n    e.FullName,\n    YEAR(o.OrderDate)  AS Nam,\n    MONTH(o.OrderDate) AS Thang,\n    SUM(od.Quantity * od.UnitPrice) AS DoanhThu\nFROM Orders o\nJOIN Employees e     ON o.EmployeeID = e.EmployeeID\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'\nGROUP BY e.FullName, YEAR(o.OrderDate), MONTH(o.OrderDate)\nORDER BY Nam, Thang, DoanhThu DESC;\n```\n\n- Mọi cột trong SELECT không nằm trong hàm aggregate → **bắt buộc** có mặt trong GROUP BY\n\n---\n\n## HAVING vs WHERE\n\n- `WHERE`: lọc **dòng dữ liệu gốc**, chạy **trước** khi gom nhóm\n- `HAVING`: lọc **nhóm kết quả** sau `GROUP BY`, chạy **sau** khi gom nhóm\n\n```sql\n-- Khách hàng có tổng doanh thu > 20 triệu (chỉ tính đơn Completed)\nSELECT\n    o.CustomerID,\n    SUM(od.Quantity * od.UnitPrice) AS TongDoanhThu\nFROM Orders o\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'          -- lọc trước khi gom nhóm\nGROUP BY o.CustomerID\nHAVING SUM(od.Quantity * od.UnitPrice) > 20000000;  -- lọc sau khi gom nhóm\n```\n\n> Sai lầm thường gặp: đặt điều kiện tổng hợp (SUM/COUNT...) vào WHERE → SQL Server báo lỗi\n\n---\n\n# Phần 5: Window Functions (30 phút)\n\n- `ROW_NUMBER()`, `RANK()`, `DENSE_RANK()`\n- `PARTITION BY` — chia nhóm để tính riêng\n- `SUM() OVER` — running total\n- Khác biệt cốt lõi với GROUP BY: **không làm gộp dòng**, vẫn giữ nguyên số dòng\n\n---\n\n## Cú pháp chung: OVER (PARTITION BY ... ORDER BY ...)\n\n```sql\nSELECT\n    EmployeeID,\n    DepartmentID,\n    Salary,\n    ROW_NUMBER() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) AS ThuTu\nFROM Employees;\n```\n\n- `PARTITION BY`: chia dữ liệu thành từng nhóm (giống GROUP BY nhưng không gộp dòng)\n- `ORDER BY` trong `OVER`: thứ tự tính toán trong từng nhóm\n- Không có `PARTITION BY` → coi toàn bộ bảng là 1 nhóm duy nhất\n\n---\n\n## ROW_NUMBER() — đánh số thứ tự duy nhất\n\n- Luôn cho số thứ tự **không trùng nhau**, kể cả khi giá trị bằng nhau\n\n```sql\n-- Đánh số nhân viên trong mỗi phòng ban theo lương giảm dần\nSELECT\n    FullName, DepartmentID, Salary,\n    ROW_NUMBER() OVER (PARTITION BY DepartmentID ORDER BY Salary DESC) AS STT\nFROM Employees;\n```\n\n- Ứng dụng phổ biến nhất: **lấy top-N mỗi nhóm** (xem slide sau)\n\n---\n\n## RANK() vs DENSE_RANK() — xử lý đồng hạng\n\n- `RANK()`: đồng hạng thì cùng số, số tiếp theo **bị nhảy cách**\n- `DENSE_RANK()`: đồng hạng thì cùng số, số tiếp theo **không nhảy cách**\n\n```sql\nSELECT\n    FullName, Salary,\n    RANK()       OVER (ORDER BY Salary DESC) AS Rank_,\n    DENSE_RANK() OVER (ORDER BY Salary DESC) AS DenseRank_,\n    ROW_NUMBER() OVER (ORDER BY Salary DESC) AS RowNum_\nFROM Employees;\n```\n\n- Ví dụ: 2 người cùng hạng 2 → RANK cho ra 2, 2, **4** (bỏ qua 3) | DENSE_RANK cho ra 2, 2, **3**\n\n---\n\n## Ứng dụng: Top-N theo mỗi nhóm\n\n- Bài toán kinh điển: \"Top 3 nhân viên doanh số cao nhất **mỗi phòng ban**\"\n- Dùng CTE + ROW_NUMBER (không dùng TOP vì TOP không tự chia nhóm được)\n\n```sql\nWITH XepHang AS (\n    SELECT\n        e.FullName,\n        e.DepartmentID,\n        SUM(od.Quantity * od.UnitPrice) AS DoanhSo,\n        ROW_NUMBER() OVER (\n            PARTITION BY e.DepartmentID\n            ORDER BY SUM(od.Quantity * od.UnitPrice) DESC\n        ) AS ThuHang\n    FROM Employees e\n    JOIN Orders o        ON o.EmployeeID = e.EmployeeID\n    JOIN OrderDetails od ON od.OrderID = o.OrderID\n    WHERE o.Status = 'Completed'\n    GROUP BY e.FullName, e.DepartmentID\n)\nSELECT * FROM XepHang WHERE ThuHang <= 3;\n```\n\n---\n\n## SUM() OVER — Running Total (tổng lũy kế)\n\n- Thêm `ORDER BY` vào `OVER` mà không `PARTITION BY` theo nhóm cần cộng dồn riêng\n\n```sql\n-- Doanh thu lũy kế theo từng ngày có đơn hàng\nSELECT\n    o.OrderDate,\n    SUM(od.Quantity * od.UnitPrice) AS DoanhThuNgay,\n    SUM(SUM(od.Quantity * od.UnitPrice)) OVER (\n        ORDER BY o.OrderDate\n        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n    ) AS DoanhThuLuyKe\nFROM Orders o\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'\nGROUP BY o.OrderDate\nORDER BY o.OrderDate;\n```\n\n- `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: cộng dồn từ dòng đầu đến dòng hiện tại\n\n---\n\n## Running Total theo từng nhóm (PARTITION BY)\n\n```sql\n-- Doanh thu lũy kế theo từng khách hàng, theo thời gian\nSELECT\n    o.CustomerID,\n    o.OrderDate,\n    SUM(od.Quantity * od.UnitPrice) OVER (\n        PARTITION BY o.CustomerID\n        ORDER BY o.OrderDate\n        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n    ) AS LuyKeTheoKhachHang\nFROM Orders o\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'\nORDER BY o.CustomerID, o.OrderDate;\n```\n\n- Mỗi khách hàng có 1 chuỗi lũy kế riêng, độc lập với khách khác\n\n---\n\n## Window Function khác: LAG/LEAD (giới thiệu nhanh)\n\n- `LAG()`: lấy giá trị dòng **trước đó**\n- `LEAD()`: lấy giá trị dòng **kế tiếp**\n- Dùng để so sánh kỳ này với kỳ trước (tăng/giảm)\n\n```sql\nSELECT\n    o.OrderDate,\n    SUM(od.Quantity * od.UnitPrice) AS DoanhThuNgay,\n    LAG(SUM(od.Quantity * od.UnitPrice)) OVER (ORDER BY o.OrderDate) AS DoanhThuNgayTruoc\nFROM Orders o\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'\nGROUP BY o.OrderDate\nORDER BY o.OrderDate;\n```\n\n---\n\n# Phần 6: View (30 phút)\n\n- `CREATE VIEW` — cú pháp cơ bản\n- Mục đích: đơn giản hóa query phức tạp, bảo mật (ẩn cột nhạy cảm)\n- Updatable view và giới hạn\n- `WITH CHECK OPTION`\n- Indexed View (giới thiệu sơ lược)\n\n---\n\n## CREATE VIEW — cú pháp cơ bản\n\n- View là 1 \"câu SELECT được đặt tên\", không lưu dữ liệu riêng (trừ Indexed View)\n\n```sql\nCREATE VIEW vw_ChiTietDonHang AS\nSELECT\n    o.OrderID,\n    c.CustomerName,\n    e.FullName AS NhanVien,\n    p.ProductName,\n    od.Quantity,\n    od.UnitPrice,\n    od.Quantity * od.UnitPrice AS ThanhTien\nFROM Orders o\nJOIN Customers c     ON o.CustomerID = c.CustomerID\nJOIN Employees e     ON o.EmployeeID = e.EmployeeID\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nJOIN Products p      ON od.ProductID = p.ProductID;\nGO\n\n-- Dùng như 1 bảng bình thường\nSELECT * FROM vw_ChiTietDonHang WHERE CustomerName LIKE N'%Minh Phat%';\n```\n\n---\n\n## Mục đích 1: Đơn giản hóa query phức tạp\n\n- Ẩn JOIN nhiều bảng, logic phức tạp sau 1 cái tên dễ hiểu\n- Người dùng cuối (BI, report) chỉ cần `SELECT * FROM vw_...`\n\n```sql\nCREATE VIEW vw_DoanhThuTheoKhachHang AS\nSELECT\n    c.CustomerID,\n    c.CustomerName,\n    SUM(od.Quantity * od.UnitPrice) AS TongDoanhThu,\n    COUNT(DISTINCT o.OrderID) AS SoDonHang\nFROM Customers c\nJOIN Orders o        ON c.CustomerID = o.CustomerID\nJOIN OrderDetails od ON o.OrderID = od.OrderID\nWHERE o.Status = 'Completed'\nGROUP BY c.CustomerID, c.CustomerName;\nGO\n```\n\n---\n\n## Mục đích 2: Bảo mật — ẩn cột nhạy cảm\n\n- Cấp quyền `SELECT` trên VIEW thay vì trên bảng gốc → ẩn cột như `Salary`, `Email`\n\n```sql\nCREATE VIEW vw_DanhSachNhanVien AS\nSELECT\n    EmployeeID,\n    FullName,\n    DepartmentID,\n    HireDate\n    -- KHÔNG có Salary, Email\nFROM Employees;\nGO\n\n-- Cấp quyền cho user chỉ được xem qua view này\nGRANT SELECT ON vw_DanhSachNhanVien TO SomeReadOnlyUser;\n```\n\n- Nhân viên phòng nhân sự cấp thấp có thể xem danh sách mà không thấy lương\n\n---\n\n## Updatable View và giới hạn\n\n- View trên **1 bảng, không aggregate, không DISTINCT** → có thể `INSERT/UPDATE/DELETE` qua view\n\n```sql\nCREATE VIEW vw_NhanVienIT AS\nSELECT EmployeeID, FullName, Email, Salary\nFROM Employees\nWHERE DepartmentID = 1;\nGO\n\n-- Cập nhật qua view — hợp lệ vì view đơn giản, 1 bảng\nUPDATE vw_NhanVienIT SET Salary = Salary * 1.1 WHERE EmployeeID = 2;\n```\n\n- **KHÔNG update được** nếu view có: JOIN nhiều bảng, `GROUP BY`, `DISTINCT`, hàm aggregate, `TOP`... (SQL Server sẽ báo lỗi)\n\n---\n\n## WITH CHECK OPTION\n\n- Ngăn việc `INSERT/UPDATE` qua view tạo ra dòng **không còn thỏa điều kiện WHERE của view**\n\n```sql\nCREATE VIEW vw_NhanVienIT AS\nSELECT EmployeeID, FullName, Email, Salary, DepartmentID\nFROM Employees\nWHERE DepartmentID = 1\nWITH CHECK OPTION;\nGO\n\n-- Lỗi! Không được đổi DepartmentID vì sẽ làm dòng \"biến mất\" khỏi view\nUPDATE vw_NhanVienIT SET DepartmentID = 2 WHERE EmployeeID = 2;\n```\n\n- Không có `WITH CHECK OPTION`: lệnh trên vẫn chạy được, dòng chỉ \"biến mất\" khỏi view sau khi update\n\n---\n\n## Indexed View (giới thiệu sơ lược)\n\n- View bình thường: **không lưu dữ liệu**, chạy lại query mỗi lần gọi\n- Indexed View: tạo **clustered index** trên view → dữ liệu được **vật lý hóa** (materialized), lưu thật trên đĩa\n\n```sql\nCREATE VIEW vw_DoanhThuTheoKhachHang_Indexed\nWITH SCHEMABINDING AS\nSELECT\n    o.CustomerID,\n    SUM(od.Quantity * od.UnitPrice) AS TongDoanhThu,\n    COUNT_BIG(*) AS SoDong\nFROM dbo.Orders o\nJOIN dbo.OrderDetails od ON o.OrderID = od.OrderID\nGROUP BY o.CustomerID;\nGO\n\nCREATE UNIQUE CLUSTERED INDEX IX_vw_DoanhThu ON vw_DoanhThuTheoKhachHang_Indexed(CustomerID);\n```\n\n- Yêu cầu: `WITH SCHEMABINDING`, `COUNT_BIG` thay `COUNT`, không dùng được với query linh hoạt\n- Đánh đổi: đọc nhanh hơn nhiều, nhưng ghi (INSERT/UPDATE/DELETE) vào bảng gốc chậm hơn → chỉ dùng khi thật cần thiết, sẽ không đi sâu ở khóa này\n\n---\n\n# Tổng kết Buổi 2\n\n- **JOIN**: INNER (khớp cả 2), LEFT/RIGHT (giữ 1 bên), FULL (giữ cả 2), CROSS (tích Descartes), SELF (bảng tự join)\n- **Subquery & CTE**: CTE giúp query dễ đọc hơn, dùng lại tên được, hỗ trợ đệ quy\n- **GROUP BY/HAVING**: WHERE lọc trước gộp nhóm, HAVING lọc sau gộp nhóm\n- **Window Function**: `PARTITION BY` chia nhóm mà không gộp dòng — chìa khóa cho xếp hạng & running total\n- **View**: đơn giản hóa query + bảo mật cột nhạy cảm; nhớ giới hạn của updatable view\n\n### Preview Buổi 3: Stored Procedure, Function, Trigger\n\n- Đóng gói logic nghiệp vụ vào Stored Procedure có tham số\n- Viết Scalar Function & Table-Valued Function tái sử dụng trong SELECT\n- Trigger tự động phản ứng khi dữ liệu thay đổi (INSERT/UPDATE/DELETE)\n"</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+(function(){
+  var raw = JSON.parse(document.getElementById('deck-source').textContent);
+  var DECK_KEY = 'sqltraining-slide-' + 02;
+
+  function stripFrontmatter(lines){
+    if(lines[0] && lines[0].trim()==='---'){
+      for(var i=1;i<lines.length;i++){
+        if(lines[i].trim()==='---') return lines.slice(i+1);
+      }
+    }
+    return lines;
+  }
+  function splitSlides(text){
+    var lines = text.replace(/\r\n/g,'\n').split('\n');
+    lines = stripFrontmatter(lines);
+    var out=[], cur=[];
+    for(var i=0;i<lines.length;i++){
+      if(lines[i].trim()==='---'){ out.push(cur.join('\n').trim()); cur=[]; }
+      else cur.push(lines[i]);
+    }
+    out.push(cur.join('\n').trim());
+    return out.filter(function(s){return s.length>0;});
+  }
+
+  marked.setOptions({breaks:false});
+  var chunks = splitSlides(raw);
+  var currentSection = 'Query nâng cao & View';
+  var slides = chunks.map(function(chunk, idx){
+    var isDivider = /^#\s+[^#]/.test(chunk);
+    var firstLine = (chunk.match(/^#\s+(.+)$/m)||[])[1] || '';
+    var summary = (chunk.match(/^#{1,3}\s+(.+)$/m)||[])[1] || chunk.slice(0,60);
+    if(isDivider && firstLine){
+      currentSection = firstLine.replace(/^Phần\s*\d+\s*:\s*/i,'').trim();
+    }
+    return {
+      md: chunk,
+      isDivider: isDivider && idx>0,
+      isHero: idx===0,
+      section: currentSection,
+      summary: summary,
+      index: idx
+    };
+  });
+
+  var viewport = document.getElementById('viewport');
+  slides.forEach(function(s, idx){
+    var section = document.createElement('section');
+    section.className = 'slide' + (s.isHero?' slide--hero':(s.isDivider?' slide--section':''));
+    section.hidden = idx!==0;
+    section.setAttribute('data-index', idx);
+    var inner = document.createElement('div');
+    inner.className = 'slide__inner';
+    if(s.isHero || s.isDivider){
+      var num = document.createElement('div');
+      num.className='marker';
+      num.textContent = String(idx+1).padStart(2,'0');
+      inner.appendChild(num);
+      var bar = document.createElement('div');
+      bar.className='accent-bar';
+      inner.appendChild(bar);
+    }
+    var content = document.createElement('div');
+    content.innerHTML = marked.parse(s.md);
+    inner.appendChild(content);
+    section.appendChild(inner);
+    viewport.appendChild(section);
+
+    content.querySelectorAll('table').forEach(function(t){
+      var wrap = document.createElement('div');
+      wrap.className='table-wrap';
+      t.parentNode.insertBefore(wrap,t);
+      wrap.appendChild(t);
+    });
+    content.querySelectorAll('pre').forEach(function(pre){
+      var code = pre.querySelector('code');
+      if(!code) return;
+      var lang = (code.className.match(/language-(\w+)/)||[])[1] || 'sql';
+      var panel = document.createElement('div');
+      panel.className='code-panel';
+      var bar = document.createElement('div');
+      bar.className='code-panel__bar';
+      bar.innerHTML = '<span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__dot"></span><span class="code-panel__tab">Query.'+ (lang==='sql'?'sql':lang) +'</span>';
+      pre.parentNode.insertBefore(panel, pre);
+      panel.appendChild(bar);
+      panel.appendChild(pre);
+      try{
+        if(!code.className.includes('language-')) code.className += ' language-sql';
+        hljs.highlightElement(code);
+      }catch(e){}
+    });
+  });
+
+  var total = slides.length;
+  var current = 0;
+  try{
+    var saved = parseInt(localStorage.getItem(DECK_KEY),10);
+    if(!isNaN(saved) && saved>=0 && saved<total) current = saved;
+  }catch(e){}
+
+  var progressFill = document.getElementById('progressFill');
+  var sectionLabel = document.getElementById('sectionLabel');
+  var slideCount = document.getElementById('slideCount');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var allSlideEls = viewport.querySelectorAll('.slide');
+
+  function render(){
+    allSlideEls.forEach(function(el,idx){ el.hidden = idx!==current; });
+    progressFill.style.width = ((current+1)/total*100)+'%';
+    sectionLabel.textContent = slides[current].section;
+    slideCount.textContent = (current+1)+' / '+total;
+    prevBtn.disabled = current===0;
+    nextBtn.disabled = current===total-1;
+    try{ localStorage.setItem(DECK_KEY,String(current)); }catch(e){}
+  }
+  function go(idx){
+    if(idx<0||idx>=total) return;
+    current = idx;
+    render();
+  }
+  prevBtn.addEventListener('click',function(){go(current-1);});
+  nextBtn.addEventListener('click',function(){go(current+1);});
+  document.getElementById('zonePrev').addEventListener('click',function(){go(current-1);});
+  document.getElementById('zoneNext').addEventListener('click',function(){go(current+1);});
+
+  document.addEventListener('keydown', function(e){
+    if(!overviewPanel.hidden){
+      if(e.key==='Escape') closeOverview();
+      return;
+    }
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ go(current+1); e.preventDefault(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ go(current-1); e.preventDefault(); }
+    else if(e.key==='Home'){ go(0); }
+    else if(e.key==='End'){ go(total-1); }
+    else if(e.key==='o'||e.key==='O'){ openOverview(); }
+  });
+
+  var touchX=null;
+  viewport.addEventListener('touchstart',function(e){touchX=e.touches[0].clientX;},{passive:true});
+  viewport.addEventListener('touchend',function(e){
+    if(touchX===null) return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx)>50){ dx<0 ? go(current+1) : go(current-1); }
+    touchX=null;
+  },{passive:true});
+
+  var overviewPanel = document.getElementById('overviewPanel');
+  var overviewBtn = document.getElementById('overviewBtn');
+  var overviewClose = document.getElementById('overviewClose');
+  var ovGrid = document.getElementById('ovGrid');
+  slides.forEach(function(s,idx){
+    var btn = document.createElement('button');
+    btn.className='ov-item';
+    btn.innerHTML = '<small>'+String(idx+1).padStart(2,'0')+' · '+s.section+'</small><span>'+s.summary+'</span>';
+    btn.addEventListener('click',function(){ go(idx); closeOverview(); });
+    ovGrid.appendChild(btn);
+  });
+  function openOverview(){
+    overviewPanel.hidden=false;
+    ovGrid.querySelectorAll('.ov-item').forEach(function(el,idx){
+      el.classList.toggle('is-current', idx===current);
+    });
+  }
+  function closeOverview(){ overviewPanel.hidden=true; }
+  overviewBtn.addEventListener('click', openOverview);
+  overviewClose.addEventListener('click', closeOverview);
+  overviewPanel.addEventListener('click', function(e){ if(e.target===overviewPanel) closeOverview(); });
+
+  render();
+})();
+</script>
