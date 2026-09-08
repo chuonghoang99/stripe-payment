@@ -455,6 +455,148 @@ Vì procedure có `OUT` parameter, khi gọi trực tiếp bằng SQL vẫn truy
 CALL process_orders_batch(ARRAY[1, 2, 3, 4, 5]::bigint[], 2, NULL, NULL);
 ```
 
+### 5.2. `SAVEPOINT`: caller dùng trực tiếp, PL/pgSQL dùng `EXCEPTION`
+
+`SAVEPOINT` đánh dấu một điểm bên trong transaction để có thể hoàn tác **một phần** thay vì hủy toàn bộ transaction:
+
+Các ví dụ caller quản lý savepoint dưới đây chỉ áp dụng khi procedure được gọi **không có** `COMMIT`/`ROLLBACK` bên trong và ném lỗi trở lại caller.
+
+```sql
+BEGIN;
+
+INSERT INTO order_audit(order_id, action)
+VALUES (10, 'before_call');
+
+SAVEPOINT before_create_order;
+
+CALL sp_create_order(10, 2);
+
+-- Nếu CALL thành công, bỏ savepoint nhưng giữ mọi thay đổi.
+RELEASE SAVEPOINT before_create_order;
+COMMIT;
+```
+
+Nếu `CALL` phát sinh lỗi, transaction sẽ ở trạng thái lỗi. Caller có thể quay về savepoint để tiếp tục sử dụng transaction:
+
+```sql
+BEGIN;
+SAVEPOINT before_create_order;
+
+CALL sp_create_order(10, 999999); -- giả sử lỗi: không đủ tồn kho
+
+-- Chạy câu này sau khi nhận lỗi từ CALL.
+ROLLBACK TO SAVEPOINT before_create_order;
+
+-- Các thay đổi sau SAVEPOINT đã bị hủy, transaction lại dùng được.
+INSERT INTO order_audit(order_id, action)
+VALUES (10, 'create_order_failed');
+
+RELEASE SAVEPOINT before_create_order;
+COMMIT;
+```
+
+Hai đoạn trên minh họa hai nhánh riêng. Ứng dụng hoặc script điều khiển transaction phải chọn một trong hai luồng:
+
+- Thành công: `CALL` → `RELEASE SAVEPOINT` → `COMMIT`.
+- Thất bại: nhận lỗi từ `CALL` → `ROLLBACK TO SAVEPOINT` → xử lý tiếp → có thể `RELEASE SAVEPOINT` → `COMMIT`.
+
+Lưu ý:
+
+- `ROLLBACK TO SAVEPOINT` hoàn tác các thay đổi sau savepoint nhưng **không xóa** savepoint đó. Có thể `RELEASE SAVEPOINT` sau khi xử lý xong.
+- `RELEASE SAVEPOINT` xóa savepoint và các savepoint được tạo sau nó; các thay đổi dữ liệu vẫn được giữ trong transaction hiện tại.
+- Nếu một row lock được lấy sau savepoint, rollback về savepoint sẽ giải phóng lock đó.
+
+#### Không viết `SAVEPOINT` trực tiếp trong PL/pgSQL
+
+PL/pgSQL không hỗ trợ trực tiếp `SAVEPOINT`, `ROLLBACK TO SAVEPOINT` hoặc `RELEASE SAVEPOINT` trong body của FUNCTION/PROCEDURE/`DO`:
+
+```sql
+CREATE OR REPLACE PROCEDURE sp_wrong_savepoint()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    SAVEPOINT before_update;                  -- ❌ không được hỗ trợ
+    UPDATE orders SET status = 'processing';
+    ROLLBACK TO SAVEPOINT before_update;      -- ❌ không được hỗ trợ
+END;
+$$;
+```
+
+Mẫu tương đương trong PL/pgSQL là inner block có `EXCEPTION`. PostgreSQL tạo một subtransaction nội bộ, có tác dụng gần giống một savepoint ngầm:
+
+```sql
+CREATE OR REPLACE PROCEDURE sp_update_order_safely(p_order_id bigint)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_failed   boolean := false;
+    v_sqlstate text;
+    v_message  text;
+BEGIN
+    INSERT INTO order_audit(order_id, action)
+    VALUES (p_order_id, 'started');
+
+    BEGIN
+        -- Những thay đổi trong inner block thuộc subtransaction.
+        UPDATE orders
+        SET status = 'processing'
+        WHERE id = p_order_id
+          AND status = 'pending';
+
+        IF NOT FOUND THEN
+            RAISE EXCEPTION USING
+                ERRCODE = 'P0002',
+                MESSAGE = format('Không tìm thấy order pending: %s', p_order_id);
+        END IF;
+
+        INSERT INTO order_audit(order_id, action)
+        VALUES (p_order_id, 'processing');
+    EXCEPTION WHEN OTHERS THEN
+        -- UPDATE và INSERT 'processing' đã tự rollback trước khi vào đây.
+        -- INSERT 'started' ở outer block vẫn còn trong transaction hiện tại.
+        v_failed := true;
+        GET STACKED DIAGNOSTICS
+            v_sqlstate = RETURNED_SQLSTATE,
+            v_message = MESSAGE_TEXT;
+    END;
+
+    IF v_failed THEN
+        INSERT INTO batch_job_errors(entity_id, sqlstate, message)
+        VALUES (p_order_id, v_sqlstate, v_message);
+    END IF;
+END;
+$$;
+```
+
+Có thể hình dung như sau:
+
+```text
+SQL caller                         Bên trong PL/pgSQL
+-------------------------------    -----------------------------------
+SAVEPOINT s                        BEGIN
+  các câu SQL                        các câu SQL
+ROLLBACK TO s khi lỗi              EXCEPTION WHEN ... THEN
+                                     -- tự rollback inner block
+RELEASE SAVEPOINT s                END
+```
+
+Đây là sự tương đương về ý tưởng, không phải cú pháp được PL/pgSQL dịch nguyên văn. Một số khác biệt cần nhớ:
+
+- `BEGIN` trong body PL/pgSQL chỉ mở **block ngôn ngữ**, không phải câu lệnh SQL `BEGIN` mở transaction.
+- Chỉ block có mệnh đề `EXCEPTION` mới tạo subtransaction để bắt và hoàn tác lỗi ở phạm vi đó.
+- Thay đổi dữ liệu trong inner block bị rollback, nhưng giá trị biến PL/pgSQL đã gán trước lỗi không tự quay về giá trị cũ.
+- Không thể `COMMIT`/`ROLLBACK` trong khi subtransaction của block có `EXCEPTION` còn hoạt động. Đây chính là nguyên nhân của lỗi `2D000: cannot commit while a subtransaction is active`.
+- Nếu procedure tự thực hiện `COMMIT`, hãy gọi nó bằng top-level `CALL`; caller không thể bao quanh lời gọi đó bằng transaction/savepoint rồi mong procedure tự commit bên trong.
+
+Quy tắc chọn cách dùng:
+
+| Nhu cầu | Cách phù hợp |
+|---|---|
+| Caller muốn thử một `CALL`, lỗi thì chỉ hủy phần đó | Caller dùng `SAVEPOINT` + `ROLLBACK TO SAVEPOINT` |
+| Procedure muốn bắt lỗi một item/batch và tiếp tục | Dùng inner `BEGIN ... EXCEPTION ... END` |
+| Procedure cần `COMMIT` sau từng batch | Đặt `COMMIT` sau inner exception block và gọi bằng top-level `CALL` |
+| Nghiệp vụ cần all-or-nothing | Không bắt lỗi để tiếp tục; `RAISE` cho caller rollback toàn transaction |
+
 ---
 
 ## 6. Batch job — lý do PROCEDURE tồn tại
@@ -1055,6 +1197,7 @@ CALL sp_notify('Hết hàng!', true);           -- gọi bản 2 tham số
 | Không trả về nhiều dòng | Có `OUT`/`INOUT` thì `CALL` trả một result row; không có output parameter thì không trả result row |
 | COMMIT/ROLLBACK phụ thuộc call stack | Chuỗi `CALL`/`DO` trực tiếp được phép; có command khác chen giữa thì bị cấm |
 | COMMIT/ROLLBACK không được đặt bên trong chính block có `EXCEPTION` | Được đặt sau `END` của inner block, khi subtransaction đã kết thúc |
+| Không dùng trực tiếp `SAVEPOINT` trong PL/pgSQL | Caller dùng `SAVEPOINT`; bên trong procedure dùng block `BEGIN ... EXCEPTION ... END` như một subtransaction |
 | `SECURITY DEFINER` hoặc procedure có `SET` clause không được transaction control | Để caller sở hữu transaction |
 | Không có `VOLATILE`/`STABLE`/`IMMUTABLE` | Vô nghĩa vì không nhúng vào query |
 
@@ -1083,6 +1226,10 @@ Bộ đề có sẵn schema/dữ liệu và đáp án hoàn chỉnh:
 ## 21. Tài liệu PostgreSQL chính thức
 
 - [PL/pgSQL Transaction Management](https://www.postgresql.org/docs/15/plpgsql-transactions.html)
+- [`SAVEPOINT`](https://www.postgresql.org/docs/15/sql-savepoint.html)
+- [`ROLLBACK TO SAVEPOINT`](https://www.postgresql.org/docs/15/sql-rollback-to.html)
+- [`RELEASE SAVEPOINT`](https://www.postgresql.org/docs/15/sql-release-savepoint.html)
+- [Porting from Oracle PL/SQL — `EXCEPTION` và savepoint ngầm](https://www.postgresql.org/docs/15/plpgsql-porting.html)
 - [PL/pgSQL Basic Statements — assignment, `EXECUTE`, `USING`](https://www.postgresql.org/docs/current/plpgsql-statements.html)
 - [`CREATE TABLE` — temporary table và `ON COMMIT`](https://www.postgresql.org/docs/current/sql-createtable.html)
 - [`WITH` Queries — CTE materialization](https://www.postgresql.org/docs/current/queries-with.html)
